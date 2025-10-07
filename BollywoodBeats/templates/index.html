@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bollywood Beats</title>
+
+  
+  
+  <!-- Bootstrap 5 CSS link -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- My custom stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- ================= UNIQUE HEADER ================= -->
+  <header class="custom-header">
+    <!-- Row 1: Logo + Title -->
+    <div class="custom-header-top">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+      <h1>Bollywood Beats</h1>
+    </div>
+
+    <!-- Row 2: Navigation -->
+    <nav class="custom-header-nav">
+      <ul class="nav justify-content-center m-0">
+        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.event_details', event_id=1) }}">Events</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ================= HERO SECTION ================= -->
+  <section class="bg-warning text-dark text-center py-5">
+    <div class="container">
+      <h1 class="display-4 fw-bold">Welcome to Bollywood Beats</h1>
+      <p class="lead">Discover and book Bollywood music concerts across Australia</p>
+      <a href="{{ url_for('main.event_details', event_id=1) }}" class="btn btn-dark btn-lg mt-3">View Events</a>
+    </div>
+  </section>
+
+  <!-- ================= UPCOMING EVENTS ================= -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="text-center mb-4">Upcoming Events</h2>
+      <div class="row g-4">
+        
+        <!-- Event 1 Card -->
+        <div class="col-md-4">
+          <div class="card h-100">
+            <img src="https://images.saymedia-content.com/.image/c_limit%2Ccs_srgb%2Cq_auto:eco%2Cw_700/MTk4NDY4Nzk0MzEyNTY2MzE4/100-best-bollywood-love-songs-of-the-90s.webp" 
+                 class="card-img-top" alt="Bollywood Retro Night">
+            <div class="card-body">
+              <h5 class="card-title">Bollywood Retro Night</h5>
+              <p class="card-text">Sydney Opera House – 15th October 2025</p>
+              <a href="{{ url_for('main.event_details', event_id=1) }}" class="btn btn-warning">View Details</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event 2 Card -->
+        <div class="col-md-4">
+          <div class="card h-100">
+            <img src="https://images.firstpost.com/wp-content/uploads/2018/02/Arijit-Singh-India-Tour.jpg?im=FitAndFill=(596,336)" 
+                 class="card-img-top" alt="Indie Fusion Beats">
+            <div class="card-body">
+              <h5 class="card-title">Indie Fusion Beats</h5>
+              <p class="card-text">Melbourne Arena – 28th October 2025</p>
+              <a href="{{ url_for('main.event_details', event_id=2) }}" class="btn btn-warning">View Details</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event 3 Card -->
+        <div class="col-md-4">
+          <div class="card h-100">
+            <img src="https://artiumacademy.mo.cloudinary.net/v1n/blogs/2151099114-min.webp" 
+                 class="card-img-top" alt="Classical Evening">
+            <div class="card-body">
+              <h5 class="card-title">Classical Evening</h5>
+              <p class="card-text">Brisbane Riverstage – 5th November 2025</p>
+              <a href="{{ url_for('main.event_details', event_id=3) }}" class="btn btn-warning">View Details</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-dark text-white text-center py-4">
+    <div class="mb-3">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" height="50">
+    </div>
+    <p class="mb-0">&copy; 2025 Bollywood Beats | Designed for IAB207 Assignment 1</p>
+  </footer>
+
+  <!-- Bootstrap 5 JS bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking History | Bollywood Beats</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- HEADER SECTION -->
+  <header class="custom-header">
+    <!-- Row 1: Logo + Title -->
+    <div class="custom-header-top">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+      <h1>Bollywood Beats</h1>
+    </div>
+
+    <!-- Row 2: Navigation -->
+    <nav class="custom-header-nav">
+      <ul class="nav justify-content-center m-0">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.event_details', event_id=1) }}">Events</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- BOOKING HISTORY SECTION -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <h2 class="text-center mb-4">Your Booking History</h2>
+
+      <!-- Search and Filter Row -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <input type="text" class="form-control" placeholder="Search by event name...">
+        </div>
+        <div class="col-md-3">
+          <select class="form-select">
+            <option value="">Filter by Status</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="pending">Pending</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-warning w-100">Apply</button>
+        </div>
+      </div>
+
+      <!-- BOOKING TABLE -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle shadow-sm">
+          <thead class="table-dark">
+            <tr>
+              <th>Event Name</th>
+              <th>Date</th>
+              <th>Venue</th>
+              <th>Tickets</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bollywood Retro Night</td>
+              <td>15th October 2025</td>
+              <td>Sydney Opera House</td>
+              <td>2</td>
+              <td><span class="badge bg-success">Confirmed</span></td>
+            </tr>
+            <tr>
+              <td>Indie Fusion Beats</td>
+              <td>28th October 2025</td>
+              <td>Melbourne Arena</td>
+              <td>3</td>
+              <td><span class="badge bg-warning text-dark">Pending</span></td>
+            </tr>
+            <tr>
+              <td>Classical Evening</td>
+              <td>5th November 2025</td>
+              <td>Brisbane Riverstage</td>
+              <td>1</td>
+              <td><span class="badge bg-success">Confirmed</span></td>
+            </tr>
+            <tr>
+              <td>Bollywood Retro Night</td>
+              <td>15th October 2025</td>
+              <td>Sydney Opera House</td>
+              <td>4</td>
+              <td><span class="badge bg-danger">Cancelled</span></td>
+            </tr>
+            <tr>
+              <td>Indie Fusion Beats</td>
+              <td>28th October 2025</td>
+              <td>Melbourne Arena</td>
+              <td>2</td>
+              <td><span class="badge bg-success">Confirmed</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER SECTION -->
+  <footer class="bg-dark text-white text-center py-4">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bollywood Beats Logo" width="50" class="mb-2">
+    <p class="mb-0">&copy; 2025 Bollywood Beats | Designed for IAB207 Assignment 1</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Event | Bollywood Beats</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- ================= UNIQUE HEADER ================= -->
+  <header class="custom-header">
+    <!-- Row 1: Logo + Title -->
+    <div class="custom-header-top">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+      <h1>Bollywood Beats</h1>
+    </div>
+
+    <!-- Row 2: Navigation -->
+    <nav class="custom-header-nav">
+      <ul class="nav justify-content-center m-0">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.event_details', event_id=1) }}">Events</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.create_event') }}">Create Event</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ================= CREATE EVENT FORM ================= -->
+  <section class="py-5 text-white position-relative"
+           style="background: url('https://c4.wallpaperflare.com/wallpaper/230/730/520/movies-bollywood-movies-wallpaper-preview.jpg') 
+                  no-repeat center center/cover; margin-bottom: 0;">
+
+    <!-- Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" 
+         style="background-color: rgba(0, 0, 0, 0.6);"></div>
+
+    <div class="container position-relative">
+      <h2 class="text-center mb-4 fw-bold">Create a New Event</h2>
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+
+              <!-- Event Form -->
+              <form>
+                <!-- Event Title -->
+                <div class="mb-3">
+                  <label for="eventTitle" class="form-label">Event Title</label>
+                  <select class="form-select" id="eventTitle" required>
+                    <option selected disabled>Choose...</option>
+                    <option value="retro">Bollywood Retro Night</option>
+                    <option value="indie">Indie Fusion Beats</option>
+                    <option value="classical">Classical Evening</option>
+                  </select>
+                </div>
+
+                <!-- Artist -->
+                <div class="mb-3">
+                  <label for="artist" class="form-label">Artist</label>
+                  <select class="form-select" id="artist" required>
+                    <option selected disabled>Choose...</option>
+                    <option value="kk">Krishnakumar Kunnath (KK)</option>
+                    <option value="arijit">Arijit Singh</option>
+                    <option value="lata">Lata Mangeshkar Tribute</option>
+                    <option value="shreya">Shreya Ghoshal</option>
+                  </select>
+                </div>
+
+                <!-- Date and Time -->
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="date" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="time" class="form-label">Time</label>
+                    <input type="time" class="form-control" id="time" required>
+                  </div>
+                </div>
+
+                <!-- Venue -->
+                <div class="mb-3">
+                  <label for="venue" class="form-label">Venue</label>
+                  <select class="form-select" id="venue" required>
+                    <option selected disabled>Choose...</option>
+                    <option value="sydney">Sydney Opera House</option>
+                    <option value="melbourne">Melbourne Arena</option>
+                    <option value="brisbane">Brisbane Riverstage</option>
+                  </select>
+                </div>
+
+                <!-- City -->
+                <div class="mb-3">
+                  <label for="city" class="form-label">City</label>
+                  <input type="text" class="form-control" id="city" placeholder="Enter city" required>
+                </div>
+
+                <!-- Category -->
+                <div class="mb-3">
+                  <label for="category" class="form-label">Category</label>
+                  <select class="form-select" id="category" required>
+                    <option selected disabled>Choose...</option>
+                    <option value="retro">Retro</option>
+                    <option value="indie">Indie</option>
+                    <option value="classical">Classical</option>
+                  </select>
+                </div>
+
+                <!-- Upload Image -->
+                <div class="mb-3">
+                  <label for="image" class="form-label">Upload Image</label>
+                  <input type="file" class="form-control" id="image" accept="image/*">
+                </div>
+
+                <!-- Tickets -->
+                <div class="mb-3">
+                  <label for="tickets" class="form-label">Number of Tickets</label>
+                  <input type="number" class="form-control" id="tickets" placeholder="e.g., 500" required>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between">
+                  <button type="reset" class="btn btn-secondary">Reset</button>
+                  <button type="submit" class="btn btn-warning">Create Event</button>
+                </div>
+
+              </form>
+              <!-- End Event Form -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GOLD SEPARATOR ================= -->
+  <div style="height: 4px; background-color: #ffc107; margin: 0;"></div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-dark text-white text-center py-4">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" width="40" class="mb-2">
+    <p class="mb-0">&copy; 2025 Bollywood Beats | Designed for IAB207 Assignment 1</p>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

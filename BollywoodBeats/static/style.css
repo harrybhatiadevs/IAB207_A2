@@ -1,0 +1,228 @@
+/* ============================
+   Global Styles
+   ============================ */
+
+/* Use Google Font (Poppins) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Ensure content grows and footer sits neatly at bottom */
+main {
+  flex: 1;
+}
+
+/* ============================
+   Custom Header (Unique 2-Row Layout)
+   ============================ */
+
+/* Top row (dark background) */
+.custom-header-top {
+  background-color: #212529;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 50px;
+  margin-right: 10px;
+}
+
+.custom-header-top h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Bottom row (gold navigation) */
+.custom-header-nav {
+  background-color: #ffc107;
+  text-align: center;
+}
+
+.custom-header-nav .nav-link {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  color: #212529;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.custom-header-nav .nav-link:hover {
+  background-color: #333;
+  color: #fff !important;
+  border-radius: 5px;
+}
+
+/* ============================
+   Hero Section
+   ============================ */
+
+header {
+  background: url("https://www.shutterstock.com/image-photo/bollywood-singer-stage-performance-260nw-2135482912.jpg") 
+              no-repeat center center;
+  background-size: cover;
+  color: white;
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+}
+
+header h1 {
+  font-size: 3rem;
+}
+
+header p {
+  font-size: 1.25rem;
+}
+
+header .btn {
+  margin-top: 1rem;
+}
+
+/* ============================
+   Breadcrumb Styling
+   ============================ */
+
+.custom-breadcrumb {
+  background-color: #f8f9fa;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.custom-breadcrumb .breadcrumb {
+  margin-bottom: 0;
+  font-size: 1rem;
+}
+
+.custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  content: "›";
+  color: #999;
+  padding: 0 0.5rem;
+}
+
+.custom-breadcrumb .breadcrumb a {
+  text-decoration: none;
+  color: #ff9800;
+  font-weight: 500;
+}
+
+.custom-breadcrumb .breadcrumb a:hover {
+  text-decoration: underline;
+  color: #e68900;
+}
+
+.custom-breadcrumb .breadcrumb-item.active {
+  color: #212529;
+  font-weight: 600;
+}
+
+/* ============================
+   Event Cards
+   ============================ */
+
+.card {
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.card-text {
+  font-size: 0.9rem;
+}
+
+/* ============================
+   Buttons
+   ============================ */
+
+.btn-warning {
+  background-color: #ffc107;
+  border: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+  color: white;
+}
+
+/* ============================
+   Table Styling (Booking History)
+   ============================ */
+
+.table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table thead {
+  background-color: #212529;
+  color: white;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f1f1;
+  transition: background-color 0.2s ease;
+}
+
+/* Status badge polish */
+.badge {
+  font-size: 0.85rem;
+  padding: 0.5em 0.75em;
+  border-radius: 20px;
+}
+
+/* ============================
+   Footer
+   ============================ */
+
+footer {
+  background-color: #111;
+  color: #ccc;
+  font-size: 0.9rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-top: auto;
+}
+
+footer p {
+  margin: 0;
+}
+
+footer img {
+  display: block;
+  margin: 0 auto 0.5rem auto;
+}
+
+/* Thin gold line above footer */
+.gold-line {
+  height: 3px;
+  background-color: #ffc107;
+  width: 100%;
+}
