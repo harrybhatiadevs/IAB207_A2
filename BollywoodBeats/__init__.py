@@ -1,47 +1,56 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import os
 
-# Initialize database
 db = SQLAlchemy()
+login_manager = LoginManager()
 
-def create_app():
-    """
-    Factory function to create and configure the Flask app.
-    This initializes extensions (Bootstrap, SQLAlchemy, LoginManager)
-    and registers Blueprints for modular structure.
-    """
-    app = Flask(__name__)
+def create_app(test_config: dict | None = None) -> Flask:
+    app = Flask(__name__, instance_relative_config=True)
 
-    # Configuration
-    app.debug = True  # Disable for production
-    app.secret_key = os.environ.get("SECRET_KEY", "somesecretkey")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sitedata.sqlite"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # Suppress warning logs
+    # Config: SQLite lives in instance/ for easy packaging
+    app.config.from_mapping(
+        SECRET_KEY=os.environ.get("SECRET_KEY", "somesecretkey"),
+        SQLALCHEMY_DATABASE_URI=os.environ.get(
+            "DATABASE_URL",
+            "sqlite:///" + os.path.join(app.instance_path, "app.db")
+        ),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    )
+    if test_config:
+        app.config.update(test_config)
 
-    # Initialize extensions
+    os.makedirs(app.instance_path, exist_ok=True)
+
+    # Extensions
     Bootstrap5(app)
     db.init_app(app)
-
-    # Login manager setup
-    login_manager = LoginManager()
-    login_manager.login_view = "auth.login"
     login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
 
-    # Import models here to avoid circular import issues
-    from .models import User
+    # Import models so metadata is registered
+    from . import models  # noqa: F401
 
+    # User loader
     @login_manager.user_loader
     def load_user(user_id):
-        """Load user by ID for Flask-Login."""
-        return db.session.get(User, user_id)
+        from .models import User
+        return db.session.get(User, int(user_id))
 
-    # Register blueprints (main routes + auth routes)
-    from . import views
-    from . import auth
+    # Blueprints already in repo
+    from . import views, auth
     app.register_blueprint(views.main_bp)
-    app.register_blueprint(auth.auth_bp)
+    app.register_blueprint(auth.auth_bp, url_prefix="/auth")
+
+    # Errors
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template("errors/404.html"), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return render_template("errors/500.html"), 500
 
     return app
