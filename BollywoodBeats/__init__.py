@@ -12,7 +12,8 @@ def create_app(test_config: dict | None = None) -> Flask:
 
     # Config: SQLite lives in instance/ for easy packaging
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get("SECRET_KEY", "somesecretkey"),
+        # Generate a fresh secret key every start to invalidate sessions
+        SECRET_KEY=os.urandom(32),
         SQLALCHEMY_DATABASE_URI=os.environ.get(
             "DATABASE_URL",
             "sqlite:///" + os.path.join(app.instance_path, "app.db")
@@ -32,6 +33,10 @@ def create_app(test_config: dict | None = None) -> Flask:
 
     # Import models so metadata is registered
     from . import models  # noqa: F401
+
+    # Ensure database/tables exist for first run
+    with app.app_context():
+        db.create_all()
 
     # User loader
     @login_manager.user_loader

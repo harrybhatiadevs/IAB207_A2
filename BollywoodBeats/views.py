@@ -1,20 +1,26 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect, url_for
+from flask_login import current_user, login_required
 
-# Create Blueprint for main routes
 main_bp = Blueprint('main', __name__)
 
-# Home page route
 @main_bp.route('/')
+def landing():
+    # Always show the landing page
+    return render_template('landing.html')
+
+@main_bp.route('/home')
+@login_required
 def index():
-    # In a real app, events would be loaded from a database.
     events = [
         {'id': 1, 'title': 'Bollywood Beats', 'genre': 'Bollywood', 'status': 'Open'},
         {'id': 2, 'title': 'Rhythm Nation', 'genre': 'HipHop', 'status': 'Sold Out'},
     ]
     return render_template('index.html', events=events)
 
+
 # Event details page route
 @main_bp.route('/event/<int:event_id>')
+@login_required
 def event_details(event_id):
     # Placeholder event data
     event = {
@@ -27,6 +33,7 @@ def event_details(event_id):
 
 # Event creation page route
 @main_bp.route('/create', methods=['GET', 'POST'])
+@login_required
 def create_event():
     if request.method == 'POST':
         # Placeholder form handling
@@ -35,6 +42,7 @@ def create_event():
 
 # Booking history page route
 @main_bp.route('/history')
+@login_required
 def booking_history():
     # Placeholder booking data
     bookings = [

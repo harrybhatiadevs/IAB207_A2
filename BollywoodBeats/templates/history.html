@@ -10,18 +10,21 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
 </head>
 <body>
 
-  <!-- HEADER SECTION -->
+  <!-- HEADER (Logo row + navbar) -->
   <header class="custom-header">
-    <!-- Row 1: Logo + Title -->
     <div class="custom-header-top">
-      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-      <h1>Bollywood Beats</h1>
+      <div class="d-flex align-items-center gap-2 px-2 px-sm-3">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+        <h1 class="m-0">Bollywood Beats</h1>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm ms-2" style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+        {% endif %}
+      </div>
     </div>
-
-    <!-- Row 2: Navigation -->
     <nav class="custom-header-nav">
       <ul class="nav justify-content-center m-0">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
@@ -111,8 +114,8 @@
 
   <!-- FOOTER SECTION -->
   <footer class="bg-dark text-white text-center py-4">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bollywood Beats Logo" width="50" class="mb-2">
-    <p class="mb-0">&copy; 2025 Bollywood Beats | Designed for IAB207 Assignment 1</p>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" width="40" class="mb-2">
+    <p class="mb-0">&copy; 2025 Bollywood Beats </p>
   </footer>
 
   <!-- Bootstrap JS -->
