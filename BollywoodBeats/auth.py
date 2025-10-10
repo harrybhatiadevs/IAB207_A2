@@ -50,7 +50,7 @@ def register():
             contact_number="",
             street_address=""
         )
-        # Use the model helper to ensure consistent hashing
+        
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
