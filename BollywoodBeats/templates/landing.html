@@ -16,11 +16,20 @@
 
   <!-- ================= HEADER (Black only, no navbar) ================= -->
   <div class="custom-header-top">
-    <div class="d-flex align-items-center gap-2 px-2 px-sm-3">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-      <h1 class="m-0">Bollywood Beats</h1>
+    <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
+      <div class="d-flex align-items-center gap-2">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+        <h1 class="m-0">Bollywood Beats</h1>
+      </div>
       {% if current_user.is_authenticated %}
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-sm ms-2" style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('main.my_events') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">My Events</a>
+          <a href="{{ url_for('main.account') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+        </div>
       {% endif %}
     </div>
   </div>

@@ -1,5 +1,5 @@
-from flask import Blueprint, flash, render_template, request, url_for, redirect
-from werkzeug.security import check_password_hash
+from flask import Blueprint, flash, render_template, url_for, redirect
+from sqlalchemy import or_
 from flask_login import login_user, logout_user, login_required
 from .models import User
 from .forms import LoginForm, RegisterForm
@@ -13,13 +13,20 @@ def login():
     error = None
 
     if form.validate_on_submit():
-        user_name = form.user_name.data
+        identifier = form.user_name.data.strip()
         password = form.password.data
-        user = db.session.scalar(db.select(User).where(User.email == user_name))
+        user = db.session.scalar(
+            db.select(User).where(
+                or_(
+                    User.email == identifier,
+                    User.username == identifier,
+                )
+            )
+        )
 
         if user is None:
             error = 'Invalid username or email.'
-        elif not check_password_hash(user.password_hash, password):
+        elif not user.check_password(password):
             error = 'Invalid password.'
 
         if error is None:
@@ -34,21 +41,33 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        email = form.email.data
+        email = form.email.data.strip()
         password = form.password.data
-        user_name = form.user_name.data
+        first_name = form.first_name.data.strip()
+        last_name = form.last_name.data.strip()
+        username = form.username.data.strip()
+        contact_number = form.contact_number.data.strip()
+        street_address = form.street_address.data.strip()
 
         existing_user = db.session.scalar(db.select(User).where(User.email == email))
         if existing_user:
             flash('Email already registered, please log in.')
             return redirect(url_for('auth.login'))
 
+        existing_username = db.session.scalar(
+            db.select(User).where(User.username == username)
+        )
+        if existing_username:
+            flash('Username already taken, please choose another.')
+            return redirect(url_for('auth.register'))
+
         new_user = User(
-            first_name=user_name,
-            last_name="",
+            first_name=first_name,
+            last_name=last_name,
+            username=username,
             email=email,
-            contact_number="",
-            street_address=""
+            contact_number=contact_number,
+            street_address=street_address
         )
         
         new_user.set_password(password)

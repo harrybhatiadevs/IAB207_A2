@@ -5,25 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bollywood Beats</title>
 
-  
-  
-  <!-- Bootstrap 5 CSS link -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-  <!-- Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
 </head>
 <body>
 
-  <!-- ================= HEADER ================= -->
   <header class="custom-header">
     <div class="custom-header-top">
-      <div class="d-flex align-items-center gap-2 px-2 px-sm-3">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-        <h1 class="m-0">Bollywood Beats</h1>
+      <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
+        <div class="d-flex align-items-center gap-2">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+          <h1 class="m-0">Bollywood Beats</h1>
+        </div>
         {% if current_user.is_authenticated %}
-          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm ms-2" style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('main.account') }}" class="btn btn-sm"
+               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
+               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+          </div>
         {% endif %}
       </div>
     </div>
@@ -31,72 +32,96 @@
     <nav class="custom-header-nav">
       <ul class="nav justify-content-center m-0">
         <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.index') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.event_details', event_id=1) }}">Events</a></li>
+        <li class="nav-item"><a class="nav-link" href="#events">Events</a></li>
+        {% if current_user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_events') }}">My Events</a></li>
+        {% endif %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- ================= HERO SECTION ================= -->
   <section class="bg-warning text-dark text-center py-5">
     <div class="container">
       <h1 class="display-4 fw-bold">Welcome to Bollywood Beats</h1>
-      <p class="lead">Discover and book Bollywood music concerts across Australia</p>
-      
+      <p class="lead">Discover and book unforgettable music experiences across Australia.</p>
     </div>
   </section>
 
-  <!-- ================= UPCOMING EVENTS ================= -->
-  <section class="py-5">
+  <section class="py-5" id="events">
     <div class="container">
-      <h2 class="text-center mb-4">Upcoming Events</h2>
-      <div class="row g-4">
-        
-        <!-- Event 1 Card -->
-        <div class="col-md-4">
-          <div class="card h-100">
-            <img src="https://images.saymedia-content.com/.image/c_limit%2Ccs_srgb%2Cq_auto:eco%2Cw_700/MTk4NDY4Nzk0MzEyNTY2MzE4/100-best-bollywood-love-songs-of-the-90s.webp" 
-                 class="card-img-top" alt="Bollywood Retro Night">
-            <div class="card-body">
-              <h5 class="card-title">Bollywood Retro Night</h5>
-              <p class="card-text">Sydney Opera House – 15th October 2025</p>
-              <a href="{{ url_for('main.event_details', event_id=1) }}" class="btn btn-warning">View Details</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Event 2 Card -->
-        <div class="col-md-4">
-          <div class="card h-100">
-            <img src="https://images.firstpost.com/wp-content/uploads/2018/02/Arijit-Singh-India-Tour.jpg?im=FitAndFill=(596,336)" 
-                 class="card-img-top" alt="Indie Fusion Beats">
-            <div class="card-body">
-              <h5 class="card-title">Indie Fusion Beats</h5>
-              <p class="card-text">Melbourne Arena – 28th October 2025</p>
-              <a href="{{ url_for('main.event_details', event_id=2) }}" class="btn btn-warning">View Details</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Event 3 Card -->
-        <div class="col-md-4">
-          <div class="card h-100">
-            <img src="https://artiumacademy.mo.cloudinary.net/v1n/blogs/2151099114-min.webp" 
-                 class="card-img-top" alt="Classical Evening">
-            <div class="card-body">
-              <h5 class="card-title">Classical Evening</h5>
-              <p class="card-text">Brisbane Riverstage – 5th November 2025</p>
-              <a href="{{ url_for('main.event_details', event_id=3) }}" class="btn btn-warning">View Details</a>
-            </div>
-          </div>
-        </div>
-
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <h2 class="mb-3 mb-md-0">Upcoming Events</h2>
+        <form method="get" class="d-flex gap-2">
+          <label for="category" class="visually-hidden">Filter by category</label>
+          <select name="category" id="category" class="form-select">
+            {% for category in categories %}
+              <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-dark">Filter</button>
+        </form>
       </div>
+
+      {% if events %}
+        <div class="row g-4">
+          {% for event in events %}
+            <div class="col-md-4">
+              <div class="card h-100 shadow-sm">
+                {% if event.image_url %}
+                  {% if event.image_url.startswith('http') %}
+                    <img src="{{ event.image_url }}" class="card-img-top" alt="{{ event.title }}">
+                  {% else %}
+                    <img src="{{ url_for('static', filename=event.image_url) }}" class="card-img-top" alt="{{ event.title }}">
+                  {% endif %}
+                {% else %}
+                  <img src="{{ url_for('static', filename='concert7.jpg') }}" class="card-img-top" alt="Concert image">
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">{{ event.title }}</h5>
+                    <span class="badge bg-warning text-dark">{{ event.category }}</span>
+                  </div>
+                  <div class="mb-2">
+                    {% set status_name = event.status.name if event.status else 'OPEN' %}
+                    {% set status_value = event.status.value if event.status else 'Open' %}
+                    {% if status_name == 'OPEN' %}
+                      {% set badge_class = 'bg-success' %}
+                    {% elif status_name == 'SOLD_OUT' %}
+                      {% set badge_class = 'bg-secondary' %}
+                    {% elif status_name == 'CANCELLED' %}
+                      {% set badge_class = 'bg-danger' %}
+                    {% else %}
+                      {% set badge_class = 'bg-warning text-dark' %}
+                    {% endif %}
+                    <span class="badge {{ badge_class }}">{{ status_value }}</span>
+                  </div>
+                  <p class="card-text text-muted mb-2">
+                    {{ event.city }}, {{ event.venue }}
+                  </p>
+                  <p class="card-text mb-3">
+                    {{ event.start_dt.strftime('%d %B %Y %I:%M %p') if event.start_dt else 'Date TBA' }}
+                  </p>
+                  <p class="card-text fw-semibold mb-4">
+                    ${{ '{:,.2f}'.format(event.lowest_ticket_price or 0) }}
+                  </p>
+                  <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-warning mt-auto">View Details</a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-5">
+          <h5 class="fw-bold">No events found</h5>
+          <p class="text-muted">Create a new event or adjust the category filter.</p>
+          <a href="{{ url_for('main.create_event') }}" class="btn btn-warning">Create Event</a>
+        </div>
+      {% endif %}
     </div>
   </section>
 
-  <!-- ================= FOOTER ================= -->
   <footer class="bg-dark text-white text-center py-4">
     <div class="mb-3">
       <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" height="50">
@@ -104,7 +129,6 @@
     <p class="mb-0">&copy; 2025 Bollywood Beats</p>
   </footer>
 
-  <!-- Bootstrap 5 JS bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -3,18 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Event | Bollywood Beats</title>
+  <title>Edit Event | Bollywood Beats</title>
 
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
 </head>
 <body>
 
-  <!-- ================= FLUSH HEADER (no navbar) ================= -->
   <header class="custom-header">
     <div class="custom-header-top">
       <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
@@ -22,44 +18,39 @@
           <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
           <h1 class="m-0">Bollywood Beats</h1>
         </div>
-        {% if current_user.is_authenticated %}
-          <div class="d-flex gap-2">
-            <a href="{{ url_for('main.account') }}" class="btn btn-sm"
-               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
-            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
-               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
-          </div>
-        {% endif %}
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('main.account') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+        </div>
       </div>
     </div>
     <nav class="custom-header-nav">
       <ul class="nav justify-content-center m-0">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#events">Events</a></li>
-        {% if current_user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_events') }}">My Events</a></li>
-        {% endif %}
-        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.create_event') }}">Create Event</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_events') }}">My Events</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- ================= CREATE EVENT FORM ================= -->
-  <section class="py-5 text-white position-relative"
-           style="background: url('https://c4.wallpaperflare.com/wallpaper/230/730/520/movies-bollywood-movies-wallpaper-preview.jpg') 
-                  no-repeat center center/cover; margin-bottom: 0;">
-
-    <!-- Overlay -->
-    <div class="position-absolute top-0 start-0 w-100 h-100" 
-         style="background-color: rgba(0, 0, 0, 0.6);"></div>
-
-    <div class="container position-relative">
-      <h2 class="text-center mb-4 fw-bold">Create a New Event</h2>
+  <section class="py-5 bg-light">
+    <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-lg-8">
           <div class="card shadow-sm">
             <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h2 class="mb-1">Edit Event</h2>
+                  <p class="text-muted mb-0">{{ event.title }}</p>
+                </div>
+                <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-outline-secondary btn-sm">View Event</a>
+              </div>
+
               {% with messages = get_flashed_messages() %}
                 {% if messages %}
                   {% for message in messages %}
@@ -71,28 +62,37 @@
                 {% endif %}
               {% endwith %}
 
-              <form method="POST" enctype="multipart/form-data" onsubmit="return confirm('Create this event?');">
+              <form method="POST" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
 
                 <div class="mb-3">
                   {{ form.title.label(class='form-label') }}
-                  {{ form.title(class='form-control', placeholder='Enter event title') }}
+                  {{ form.title(class='form-control') }}
                   {% for error in form.title.errors %}
                     <div class="form-text text-danger">{{ error }}</div>
                   {% endfor %}
                 </div>
 
-                <div class="mb-3">
-                  {{ form.category.label(class='form-label') }}
-                  {{ form.category(class='form-select') }}
-                  {% for error in form.category.errors %}
-                    <div class="form-text text-danger">{{ error }}</div>
-                  {% endfor %}
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    {{ form.category.label(class='form-label') }}
+                    {{ form.category(class='form-select') }}
+                    {% for error in form.category.errors %}
+                      <div class="form-text text-danger">{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    {{ form.status.label(class='form-label') }}
+                    {{ form.status(class='form-select') }}
+                    {% for error in form.status.errors %}
+                      <div class="form-text text-danger">{{ error }}</div>
+                    {% endfor %}
+                  </div>
                 </div>
 
                 <div class="mb-3">
                   {{ form.description.label(class='form-label') }}
-                  {{ form.description(class='form-control', rows=4, placeholder='Describe the event experience') }}
+                  {{ form.description(class='form-control', rows=4) }}
                   {% for error in form.description.errors %}
                     <div class="form-text text-danger">{{ error }}</div>
                   {% endfor %}
@@ -107,8 +107,18 @@
                     {% endfor %}
                   </div>
                   <div class="col-md-6 mb-3">
+                    {% if event.image_url %}
+                      {% if event.image_url.startswith('http') %}
+                        {% set current_image = event.image_url %}
+                      {% else %}
+                        {% set current_image = url_for('static', filename=event.image_url) %}
+                      {% endif %}
+                      <label class="form-label d-block">Current Image</label>
+                      <img src="{{ current_image }}" alt="{{ event.title }}" class="img-fluid rounded mb-2" style="max-height: 140px; object-fit: cover;">
+                    {% endif %}
                     {{ form.image.label(class='form-label') }}
                     {{ form.image(class='form-control') }}
+                    <div class="form-text text-muted">Upload a new image to replace the current one.</div>
                     {% for error in form.image.errors %}
                       <div class="form-text text-danger">{{ error }}</div>
                     {% endfor %}
@@ -118,14 +128,14 @@
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     {{ form.venue.label(class='form-label') }}
-                    {{ form.venue(class='form-control', placeholder='Venue name') }}
+                    {{ form.venue(class='form-control') }}
                     {% for error in form.venue.errors %}
                       <div class="form-text text-danger">{{ error }}</div>
                     {% endfor %}
                   </div>
                   <div class="col-md-6 mb-3">
                     {{ form.city.label(class='form-label') }}
-                    {{ form.city(class='form-control', placeholder='City') }}
+                    {{ form.city(class='form-control') }}
                     {% for error in form.city.errors %}
                       <div class="form-text text-danger">{{ error }}</div>
                     {% endfor %}
@@ -140,7 +150,7 @@
                       <div class="form-text text-danger">{{ error }}</div>
                     {% endfor %}
                   </div>
-                  <div class="col-md-6 mb-4">
+                  <div class="col-md-6 mb-3">
                     {{ form.price.label(class='form-label') }}
                     {{ form.price(class='form-control', min=0, step='0.01') }}
                     {% for error in form.price.errors %}
@@ -151,7 +161,7 @@
 
                 <div class="mb-4">
                   <h5 class="mb-3">Ticket Types</h5>
-                  <p class="text-muted">Add up to five ticket types. Leave unused rows blank.</p>
+                  <p class="text-muted">Update the ticket tiers for this event. Leave unused rows blank.</p>
                   {% for ticket_form in form.ticket_types %}
                     <div class="row g-2 align-items-end mb-3">
                       <div class="col-md-5">
@@ -180,9 +190,17 @@
                 </div>
 
                 <div class="d-flex justify-content-between">
-                  <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Cancel</a>
+                  <a href="{{ url_for('main.my_events') }}" class="btn btn-secondary">Cancel</a>
                   {{ form.submit(class_='btn', style='background-color:#ef902f;color:#fff;font-weight:700;border:none;') }}
                 </div>
+              </form>
+
+              <hr class="my-4">
+
+              <form method="POST" action="{{ url_for('main.delete_event', event_id=event.id) }}"
+                    onsubmit="return confirm('This will permanently delete the event. Continue?');">
+                {{ delete_form.hidden_tag() }}
+                {{ delete_form.submit(class_='btn btn-danger w-100 fw-bold') }}
               </form>
             </div>
           </div>
@@ -191,16 +209,11 @@
     </div>
   </section>
 
-  <!-- ================= GOLD SEPARATOR ================= -->
-  <div style="height: 4px; background-color: #ffc107; margin: 0;"></div>
-
-  <!-- ================= FOOTER ================= -->
-  <footer class="bg-dark text-white text-center py-4">
+  <footer class="bg-dark text-white text-center py-4 mt-auto">
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" width="40" class="mb-2">
     <p class="mb-0">&copy; 2025 Bollywood Beats</p>
   </footer>
 
-  <!-- Bootstrap 5 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
