@@ -33,13 +33,14 @@ main {
 .custom-header-top {
   background-color: #212529;
   color: #fff;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0; /* flush horizontally */
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .logo-img {
-  height: 50px;
+  height: 40px; /* smaller logo for sleek design */
   margin-right: 10px;
 }
 
@@ -57,8 +58,8 @@ main {
 }
 
 .custom-header-nav .nav-link {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  padding: 0.5rem 1rem; /* slightly smaller for sleekness */
+  font-size: 0.95rem;
   color: #212529;
   font-weight: 600;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -70,28 +71,36 @@ main {
   border-radius: 5px;
 }
 
+/* Sleek navbar hover and spacing tweaks */
+.navbar-nav {
+  gap: 0.5rem; /* spacing between nav items */
+}
+
 /* ============================
-   Hero Section
+   Hero Banner (scoped)
    ============================ */
 
-header {
-  background: url("https://www.shutterstock.com/image-photo/bollywood-singer-stage-performance-260nw-2135482912.jpg") 
+.hero-banner {
+  background: url("https://www.shutterstock.com/image-photo/bollywood-singer-stage-performance-260nw-2135482912.jpg")
               no-repeat center center;
   background-size: cover;
   color: white;
   text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+  padding: 3rem 1rem; /* compact */
 }
 
-header h1 {
-  font-size: 3rem;
+.hero-banner h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
 }
 
-header p {
-  font-size: 1.25rem;
+.hero-banner p {
+  font-size: 1.1rem;
 }
 
-header .btn {
+.hero-banner .btn {
   margin-top: 1rem;
+  font-weight: 600;
 }
 
 /* ============================
@@ -100,14 +109,14 @@ header .btn {
 
 .custom-breadcrumb {
   background-color: #f8f9fa;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   border-bottom: 1px solid #e0e0e0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .custom-breadcrumb .breadcrumb {
   margin-bottom: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -209,6 +218,7 @@ footer {
   padding-top: 1rem;
   padding-bottom: 1rem;
   margin-top: auto;
+  text-align: center;
 }
 
 footer p {
@@ -226,3 +236,4 @@ footer img {
   background-color: #ffc107;
   width: 100%;
 }
+

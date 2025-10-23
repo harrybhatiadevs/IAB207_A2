@@ -3,142 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bollywood Beats | Event Details</title>
+  <title>{{ event.title }} | Bollywood Beats</title>
 
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
 </head>
 <body>
 
-  <!-- HEADER SECTION -->
   <header class="custom-header">
-    <!-- Row 1: Logo + Title -->
     <div class="custom-header-top">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-      <h1>Bollywood Beats</h1>
+      <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
+        <div class="d-flex align-items-center gap-2">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+          <h1 class="m-0">Bollywood Beats</h1>
+        </div>
+        {% if current_user.is_authenticated %}
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('main.account') }}" class="btn btn-sm"
+               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
+               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+          </div>
+        {% endif %}
+      </div>
     </div>
-
-    <!-- Row 2: Navigation -->
     <nav class="custom-header-nav">
       <ul class="nav justify-content-center m-0">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.event_details', event_id=1) }}">Events</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#events">Events</a></li>
+        {% if current_user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_events') }}">My Events</a></li>
+        {% endif %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- BREADCRUMB SECTION -->
   <nav aria-label="breadcrumb" class="custom-breadcrumb">
     <div class="container">
       <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ url_for('main.event_details', event_id=1) }}">Events</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Bollywood Retro Night</li>
+        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}#events">Events</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
       </ol>
     </div>
   </nav>
 
-  <!-- HERO SECTION -->
-  <header class="hero-section text-white text-center d-flex align-items-center justify-content-center" 
-          style="background: url('https://cdn.platinumlist.net/upload/artist/kk_krishnakumar_kunnath_852-orig1549448947.jpg') center/cover no-repeat; height: 80vh;">
+  {% if event.image_url %}
+    {% if event.image_url.startswith('http') %}
+      {% set hero_image = event.image_url %}
+    {% else %}
+      {% set hero_image = url_for('static', filename=event.image_url) %}
+    {% endif %}
+  {% else %}
+    {% set hero_image = url_for('static', filename='concert7.jpg') %}
+  {% endif %}
+
+  {% set status_name = event.status.name if event.status else 'OPEN' %}
+  {% set status_value = event.status.value if event.status else 'Open' %}
+  {% if status_name == 'OPEN' %}
+    {% set status_badge_class = 'bg-success' %}
+  {% elif status_name == 'SOLD_OUT' %}
+    {% set status_badge_class = 'bg-secondary' %}
+  {% elif status_name == 'CANCELLED' %}
+    {% set status_badge_class = 'bg-danger' %}
+  {% else %}
+    {% set status_badge_class = 'bg-warning text-dark' %}
+  {% endif %}
+
+  <section class="hero-banner text-white text-center d-flex align-items-center justify-content-center"
+           style="background: url('{{ hero_image }}') center/cover no-repeat; min-height: 60vh;">
     <div class="container">
       <h1 class="display-2 fw-bold">
-        Bollywood Retro Night
-        <span class="badge bg-success fs-4 align-middle ms-2">Open</span>
+        {{ event.title }}
+        <span class="badge {{ status_badge_class }} fs-5 align-middle ms-2">{{ status_value }}</span>
       </h1>
-      <p class="lead fs-4">Sydney Opera House – 15th October 2025</p>
-    </div>
-  </header>
-
-  <!-- EVENT DETAILS SECTION -->
-  <section class="py-5">
-    <div class="container">
-      <h2 class="mb-3">Event Details</h2>
-      <p>
-        Step into a night of nostalgia as Bollywood Retro Night brings back the most iconic hits 
-        from the 80s and 90s. Experience legendary playback singers, dazzling lights, and 
-        unforgettable music in one of the world’s most iconic venues.
+      <p class="lead fs-4">
+        {{ event.venue }}, {{ event.city }} &middot;
+        {{ event.start_dt.strftime('%d %B %Y %I:%M %p') if event.start_dt else 'Date TBA' }}
       </p>
-      <ul>
-        <li><strong>Date:</strong> 15th October 2025</li>
-        <li><strong>Time:</strong> 7:30 PM onwards</li>
-        <li><strong>Venue:</strong> Sydney Opera House</li>
-        <li><strong>Status:</strong> <span class="badge bg-success">Open</span></li>
-        <li><strong>Tickets Available:</strong> 120</li>
-      </ul>
     </div>
   </section>
 
-  <!-- BOOKING FORM SECTION -->
-  <section class="py-5 bg-light">
-    <div class="container">
-      <h2 class="mb-3">Book Your Tickets</h2>
-      <form>
-        <div class="mb-3">
-          <label for="ticketQty" class="form-label">Number of Tickets</label>
-          <input type="number" class="form-control" id="ticketQty" min="1" max="10" placeholder="Enter tickets">
-        </div>
-        <div class="mb-3">
-          <label for="seatType" class="form-label">Seating Type</label>
-          <select class="form-select" id="seatType">
-            <option>General Admission</option>
-            <option>VIP</option>
-            <option>Balcony</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-warning">Confirm Booking</button>
-      </form>
-    </div>
-  </section>
-
-  <!-- COMMENTS SECTION -->
   <section class="py-5">
     <div class="container">
-      <h2 class="mb-3">Comments</h2>
-      <form class="mb-4">
-        <div class="mb-3">
-          <label for="commentText" class="form-label">Leave a Comment</label>
-          <textarea class="form-control" id="commentText" rows="3" placeholder="Write your comment here..."></textarea>
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <h2 class="mb-3">Event Details</h2>
+          <p>{{ event.description }}</p>
+          {% if event.ticket_types %}
+            <h3 class="mt-4">Ticket Options</h3>
+            <div class="table-responsive">
+              <table class="table table-striped align-middle">
+                <thead class="table-dark">
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for ticket in event.ticket_types %}
+                    <tr>
+                      <td>{{ ticket.name }}</td>
+                      <td>${{ '{:,.2f}'.format(ticket.price or 0) }}</td>
+                      <td>{{ ticket.quantity }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
         </div>
-        <button type="submit" class="btn btn-dark">Post Comment</button>
-      </form>
-
-      <!-- Example static comments -->
-      <div class="border rounded p-3 mb-2">
-        <strong>Priya Sharma</strong>
-        <p>So excited for this concert! Bollywood Retro is my jam 🎶</p>
-      </div>
-      <div class="border rounded p-3 mb-2">
-        <strong>Arjun Mehta</strong>
-        <p>Already booked my tickets, can’t wait to sing along!</p>
+        <div class="col-lg-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">At a glance</h5>
+              <ul class="list-unstyled mb-0">
+                <li class="mb-2"><strong>Category:</strong> {{ event.category }}</li>
+                <li class="mb-2"><strong>Start:</strong> {{ event.start_dt.strftime('%d %B %Y %I:%M %p') if event.start_dt else 'Date TBA' }}</li>
+                <li class="mb-2"><strong>Venue:</strong> {{ event.venue }}</li>
+                <li class="mb-2"><strong>City:</strong> {{ event.city }}</li>
+                <li class="mb-2"><strong>Capacity:</strong> {{ event.total_capacity }}</li>
+                <li class="mb-2"><strong>Ticket Price From:</strong> ${{ '{:,.2f}'.format(event.lowest_ticket_price or 0) }}</li>
+                <li><strong>Status:</strong> {{ event.status.value if event.status else 'Open' }}</li>
+              </ul>
+              {% if current_user.is_authenticated and current_user.id == event.owner_id %}
+                <a href="{{ url_for('main.edit_event', event_id=event.id) }}" class="btn btn-warning w-100 mt-3">Edit Event</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- GOOGLE MAP SECTION -->
   <section class="py-5 bg-light">
-    <div class="container">
-      <h2 class="mb-3">Venue Location</h2>
-      <div class="ratio ratio-16x9">
-        <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3313.506453489189!2d151.21463097613902!3d-33.85678467323066!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12ae5d8aa1f9a7%3A0x87a6e8a6eacb81!2sSydney%20Opera%20House!5e0!3m2!1sen!2sau!4v1694137000000!5m2!1sen!2sau" 
-          width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-      </div>
+    <div class="container text-center">
+      <h2 class="mb-3">Ready to join?</h2>
+      <p class="text-muted mb-4">Contact the organiser or check back soon for booking options.</p>
+      <a href="{{ url_for('main.index') }}#events" class="btn btn-warning">Back to Events</a>
     </div>
   </section>
 
-  <!-- FOOTER SECTION -->
   <footer class="bg-dark text-white text-center py-4">
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" width="40" class="mb-2">
-    <p class="mb-0">&copy; 2025 Bollywood Beats | Designed for IAB207 Assignment 1</p>
+    <p class="mb-0">&copy; 2025 Bollywood Beats</p>
   </footer>
 
-  <!-- Bootstrap 5 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

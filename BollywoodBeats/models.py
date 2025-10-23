@@ -25,6 +25,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
+    username = db.Column(db.String(80), unique=True, index=True, nullable=False)
     email = db.Column(db.String(120), unique=True, index=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     contact_number = db.Column(db.String(30), nullable=False)
@@ -48,7 +49,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, raw)
 
     def __repr__(self) -> str:
-        return f"<User {self.email}>"
+        return f"<User {self.username}>"
 
 
 class Event(db.Model):
@@ -76,10 +77,26 @@ class Event(db.Model):
     comments = db.relationship(
         "Comment", backref="event", lazy=True, cascade="all, delete-orphan"
     )
+    ticket_types = db.relationship(
+        "TicketType", backref="event", lazy=True, cascade="all, delete-orphan"
+    )
 
     @property
     def remaining_capacity(self) -> int:
-        return max(0, self.capacity - sum(b.qty for b in self.bookings))
+        return max(0, self.total_capacity - sum(b.qty for b in self.bookings))
+
+    @property
+    def total_capacity(self) -> int:
+        if self.ticket_types:
+            return sum(tt.quantity or 0 for tt in self.ticket_types)
+        return self.capacity or 0
+
+    @property
+    def lowest_ticket_price(self) -> Decimal:
+        prices = [tt.price for tt in self.ticket_types if tt.price is not None]
+        if prices:
+            return min(prices)
+        return self.price or Decimal("0")
 
     def __repr__(self) -> str:
         return f"<Event {self.title} #{self.id}>"
@@ -116,3 +133,17 @@ class Comment(db.Model):
 
     def __repr__(self) -> str:
         return f"<Comment {self.id} on event {self.event_id}>"
+
+
+class TicketType(db.Model):
+    __tablename__ = "ticket_types"
+
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    quantity = db.Column(db.Integer, nullable=False, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self) -> str:
+        return f"<TicketType {self.name} for event {self.event_id}>"

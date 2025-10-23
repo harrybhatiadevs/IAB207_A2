@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Events | Bollywood Beats</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+</head>
+<body>
+
+  <header class="custom-header">
+    <div class="custom-header-top">
+      <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
+        <div class="d-flex align-items-center gap-2">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+          <h1 class="m-0">Bollywood Beats</h1>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('main.account') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+        </div>
+      </div>
+    </div>
+    <nav class="custom-header-nav">
+      <ul class="nav justify-content-center m-0">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#events">Events</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.my_events') }}">My Events</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container py-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+      <div>
+        <h2 class="mb-1">My Events</h2>
+        <p class="text-muted mb-0">Manage the events you have created.</p>
+      </div>
+      <a href="{{ url_for('main.create_event') }}" class="btn btn-warning mt-3 mt-md-0">
+        + Create Event
+      </a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if events %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle shadow-sm">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Start</th>
+              <th scope="col">Category</th>
+              <th scope="col">Status</th>
+              <th scope="col">Tickets</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in events %}
+              <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.start_dt.strftime('%d %b %Y %I:%M %p') if event.start_dt else 'TBA' }}</td>
+                <td>{{ event.category }}</td>
+                <td>
+                  {% set status_name = event.status.name if event.status else 'OPEN' %}
+                  {% set status_value = event.status.value if event.status else 'Open' %}
+                  {% if status_name == 'OPEN' %}
+                    {% set badge_class = 'bg-success' %}
+                  {% elif status_name == 'SOLD_OUT' %}
+                    {% set badge_class = 'bg-secondary' %}
+                  {% elif status_name == 'CANCELLED' %}
+                    {% set badge_class = 'bg-danger' %}
+                  {% else %}
+                    {% set badge_class = 'bg-warning text-dark' %}
+                  {% endif %}
+                  <span class="badge {{ badge_class }}">{{ status_value }}</span>
+                </td>
+                <td>{{ event.total_capacity }}</td>
+                <td class="text-end">
+                  <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-outline-secondary btn-sm me-2">View</a>
+                  <a href="{{ url_for('main.edit_event', event_id=event.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <h5 class="fw-bold">No events yet</h5>
+        <p class="text-muted">Start by creating your first event.</p>
+        <a href="{{ url_for('main.create_event') }}" class="btn btn-warning">Create Event</a>
+      </div>
+    {% endif %}
+  </main>
+
+  <footer class="bg-dark text-white text-center py-4 mt-auto">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" width="40" class="mb-2">
+    <p class="mb-0">&copy; 2025 Bollywood Beats</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

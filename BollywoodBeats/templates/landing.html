@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bollywood Beats</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+</head>
+<body>
+
+  <!-- ================= HEADER (Black only, no navbar) ================= -->
+  <div class="custom-header-top">
+    <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
+      <div class="d-flex align-items-center gap-2">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+        <h1 class="m-0">Bollywood Beats</h1>
+      </div>
+      {% if current_user.is_authenticated %}
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('main.my_events') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">My Events</a>
+          <a href="{{ url_for('main.account') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ================= HERO SECTION ================= -->
+  <section class="bg-warning text-dark text-center py-5">
+    <div class="container">
+      <h1 class="display-4 fw-bold">Welcome to Bollywood Beats</h1>
+      <p class="lead">Your gateway to Bollywood concerts and cultural events across Australia</p>
+      <div class="mt-4">
+        <a href="{{ url_for('auth.login') }}" class="btn"
+           style="background-color: #ef902f; color: white; font-weight: 700; border: none; padding: 1rem 2.25rem; font-size: 1.35rem; border-radius: 0.75rem;">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="btn ms-3"
+           style="background-color: #ef902f; color: white; font-weight: 700; border: none; padding: 1rem 2.25rem; font-size: 1.35rem; border-radius: 0.75rem;">Register</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PREVIEW SECTION ================= -->
+  <section class="py-5 bg-light">
+    <div class="container text-center">
+      <h2 class="fw-bold mb-4">What’s Inside</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <img src="static/concert2.jpg"
+                 class="card-img-top" alt="Retro Vibes">
+            <div class="card-body">
+              <h5 class="card-title">Live Music Events</h5>
+              <p class="card-text">Explore live Bollywood concerts, classical performances, and indie shows across major cities.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <img src="static/concert4.jpg" 
+                 class="card-img-top" alt="Modern Beats">
+            <div class="card-body">
+              <h5 class="card-title">Book Instantly</h5>
+              <p class="card-text">Log in to view upcoming events, reserve your seats, and get instant booking confirmation.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <img src="static/concert3.jpg"
+                 class="card-img-top" alt="Community">
+            <div class="card-body">
+              <h5 class="card-title">Join the Community</h5>
+              <p class="card-text">Be part of the Bollywood Beats family and celebrate music, rhythm, and culture together.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-dark text-white text-center py-4">
+    <div class="mb-3">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" height="50">
+    </div>
+    <p class="mb-0">&copy; 2025 Bollywood Beats</p>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

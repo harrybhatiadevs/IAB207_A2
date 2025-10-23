@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings | Bollywood Beats</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+</head>
+<body>
+
+  <header class="custom-header">
+    <div class="custom-header-top">
+      <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
+        <div class="d-flex align-items-center gap-2">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+          <h1 class="m-0">Bollywood Beats</h1>
+        </div>
+        {% if current_user.is_authenticated %}
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('main.account') }}" class="btn btn-sm"
+               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
+               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <nav class="custom-header-nav">
+      <ul class="nav justify-content-center m-0">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#events">Events</a></li>
+        {% if current_user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_events') }}">My Events</a></li>
+        {% endif %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h2 class="text-center mb-4">Account Settings</h2>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('main.account') }}"
+                  onsubmit="return confirm('Save changes to your account details?');">
+              {{ form.hidden_tag() }}
+
+              <div class="mb-3">
+                {{ form.first_name.label(class='form-label') }}
+                {{ form.first_name(class='form-control', placeholder='Enter first name') }}
+                {% for error in form.first_name.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ form.last_name.label(class='form-label') }}
+                {{ form.last_name(class='form-control', placeholder='Enter last name') }}
+                {% for error in form.last_name.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ form.username.label(class='form-label') }}
+                {{ form.username(class='form-control', placeholder='Enter username') }}
+                {% for error in form.username.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ form.email.label(class='form-label') }}
+                {{ form.email(class='form-control', placeholder='Enter email address') }}
+                {% for error in form.email.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ form.contact_number.label(class='form-label') }}
+                {{ form.contact_number(class='form-control', placeholder='Enter phone number') }}
+                {% for error in form.contact_number.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-4">
+                {{ form.street_address.label(class='form-label') }}
+                {{ form.street_address(class='form-control', placeholder='Enter street address') }}
+                {% for error in form.street_address.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-3">
+                {{ form.new_password.label(class='form-label') }}
+                {{ form.new_password(class='form-control', placeholder='Leave blank to keep current password') }}
+                {% for error in form.new_password.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="mb-4">
+                {{ form.confirm_new_password.label(class='form-label') }}
+                {{ form.confirm_new_password(class='form-control', placeholder='Re-enter new password') }}
+                {% for error in form.confirm_new_password.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              {{ form.submit(class_='btn w-100', style='background-color:#ef902f;color:#fff;font-weight:700;border:none;') }}
+            </form>
+
+            <hr class="my-4">
+
+            <form method="POST" action="{{ url_for('main.account') }}"
+                  onsubmit="return confirm('This will permanently delete your account. Continue?');">
+              {{ delete_form.hidden_tag() }}
+              {{ delete_form.delete(class_='btn btn-danger w-100 fw-bold') }}
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-dark text-white text-center py-4">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" width="40" class="mb-2">
+    <p class="mb-0">&copy; 2025 Bollywood Beats</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
