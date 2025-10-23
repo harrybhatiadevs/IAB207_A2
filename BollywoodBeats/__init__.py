@@ -2,12 +2,13 @@ from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from typing import Optional
 import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 
-def create_app(test_config: dict | None = None) -> Flask:
+def create_app(test_config: Optional[dict] = None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
 
     # Config: SQLite lives in instance/ for easy packaging
