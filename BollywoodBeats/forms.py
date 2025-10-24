@@ -178,15 +178,6 @@ class EventForm(FlaskForm):
             NumberRange(min=1, message="Capacity must be at least 1"),
         ],
     )
-    price = DecimalField(
-        "Default Ticket Price",
-        places=2,
-        rounding=None,
-        validators=[
-            InputRequired("Enter ticket price"),
-            NumberRange(min=0, message="Price cannot be negative"),
-        ],
-    )
     ticket_types = FieldList(FormField(TicketTierForm), min_entries=3, max_entries=5)
     submit = SubmitField("Create Event")
 
@@ -234,18 +225,18 @@ class EventUpdateForm(FlaskForm):
             NumberRange(min=1, message="Capacity must be at least 1"),
         ],
     )
-    price = DecimalField(
-        "Default Ticket Price",
-        places=2,
-        rounding=None,
-        validators=[
-            InputRequired("Enter ticket price"),
-            NumberRange(min=0, message="Price cannot be negative"),
-        ],
-    )
     ticket_types = FieldList(FormField(TicketTierForm), min_entries=3, max_entries=5)
     submit = SubmitField("Save Changes")
 
 
 class DeleteEventForm(FlaskForm):
     submit = SubmitField("Delete Event")
+
+
+class BookingForm(FlaskForm):
+    ticket_type_id = SelectField("Ticket Type", coerce=int, validators=[InputRequired()])
+    quantity = IntegerField(
+        "Quantity",
+        validators=[InputRequired("Enter quantity"), NumberRange(min=1, max=10, message="Select between 1 and 10 tickets")],
+    )
+    submit = SubmitField("Book Tickets")

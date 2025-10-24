@@ -93,6 +93,16 @@
         <div class="col-lg-8">
           <h2 class="mb-3">Event Details</h2>
           <p>{{ event.description }}</p>
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
           {% if event.ticket_types %}
             <h3 class="mt-4">Ticket Options</h3>
             <div class="table-responsive">
@@ -101,7 +111,8 @@
                   <tr>
                     <th scope="col">Name</th>
                     <th scope="col">Price</th>
-                    <th scope="col">Quantity</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Remaining</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -110,6 +121,7 @@
                       <td>{{ ticket.name }}</td>
                       <td>${{ '{:,.2f}'.format(ticket.price or 0) }}</td>
                       <td>{{ ticket.quantity }}</td>
+                      <td>{{ ticket.remaining_quantity }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>
@@ -141,10 +153,43 @@
   </section>
 
   <section class="py-5 bg-light">
-    <div class="container text-center">
-      <h2 class="mb-3">Ready to join?</h2>
-      <p class="text-muted mb-4">Contact the organiser or check back soon for booking options.</p>
-      <a href="{{ url_for('main.index') }}#events" class="btn btn-warning">Back to Events</a>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h2 class="h4 mb-3 text-center">Book Tickets</h2>
+              {% if event.remaining_capacity <= 0 or status_name in ['CANCELLED', 'INACTIVE'] %}
+                <div class="alert alert-secondary text-center mb-0">
+                  This event is currently unavailable for booking.
+                </div>
+              {% else %}
+                <form method="POST">
+                  {{ form.hidden_tag() }}
+                  <div class="mb-3">
+                    {{ form.ticket_type_id.label(class='form-label') }}
+                    {{ form.ticket_type_id(class='form-select') }}
+                    {% for error in form.ticket_type_id.errors %}
+                      <div class="form-text text-danger">{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  <div class="mb-3">
+                    {{ form.quantity.label(class='form-label') }}
+                    {{ form.quantity(class='form-control', min=1, max=10) }}
+                    {% for error in form.quantity.errors %}
+                      <div class="form-text text-danger">{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  <div class="d-grid">
+                    {{ form.submit(class_='btn btn-warning fw-bold') }}
+                  </div>
+                </form>
+              {% endif %}
+              <a href="{{ url_for('main.index') }}#events" class="btn btn-link d-block mt-3 text-decoration-none">Back to Events</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

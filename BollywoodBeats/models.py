@@ -83,7 +83,10 @@ class Event(db.Model):
 
     @property
     def remaining_capacity(self) -> int:
-        return max(0, self.total_capacity - sum(b.qty for b in self.bookings))
+        if self.ticket_types:
+            return sum(tt.remaining_quantity for tt in self.ticket_types)
+        general_booked = sum(b.qty for b in self.bookings if b.ticket_type_id is None)
+        return max(0, (self.capacity or 0) - general_booked)
 
     @property
     def total_capacity(self) -> int:
@@ -109,6 +112,7 @@ class Booking(db.Model):
     order_id = db.Column(db.String(20), unique=True, index=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
+    ticket_type_id = db.Column(db.Integer, db.ForeignKey("ticket_types.id"))
     qty = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Numeric(10, 2), nullable=False)
     booked_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -144,6 +148,18 @@ class TicketType(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     quantity = db.Column(db.Integer, nullable=False, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    bookings = db.relationship(
+        "Booking", backref="ticket_type", lazy=True, cascade="all, delete-orphan"
+    )
+
+    @property
+    def sold_quantity(self) -> int:
+        return sum(b.qty for b in self.bookings)
+
+    @property
+    def remaining_quantity(self) -> int:
+        return max(0, (self.quantity or 0) - self.sold_quantity)
 
     def __repr__(self) -> str:
         return f"<TicketType {self.name} for event {self.event_id}>"

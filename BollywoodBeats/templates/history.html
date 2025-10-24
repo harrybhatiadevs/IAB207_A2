@@ -50,75 +50,60 @@
     <div class="container">
       <h2 class="text-center mb-4">Your Booking History</h2>
 
-      <!-- Search and Filter Row -->
-      <div class="row mb-4">
-        <div class="col-md-6">
-          <input type="text" class="form-control" placeholder="Search by event name...">
-        </div>
-        <div class="col-md-3">
-          <select class="form-select">
-            <option value="">Filter by Status</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="pending">Pending</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <button class="btn btn-warning w-100">Apply</button>
-        </div>
-      </div>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
 
-      <!-- BOOKING TABLE -->
-      <div class="table-responsive">
-        <table class="table table-hover align-middle shadow-sm">
-          <thead class="table-dark">
-            <tr>
-              <th>Event Name</th>
-              <th>Date</th>
-              <th>Venue</th>
-              <th>Tickets</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Bollywood Retro Night</td>
-              <td>15th October 2025</td>
-              <td>Sydney Opera House</td>
-              <td>2</td>
-              <td><span class="badge bg-success">Confirmed</span></td>
-            </tr>
-            <tr>
-              <td>Indie Fusion Beats</td>
-              <td>28th October 2025</td>
-              <td>Melbourne Arena</td>
-              <td>3</td>
-              <td><span class="badge bg-warning text-dark">Pending</span></td>
-            </tr>
-            <tr>
-              <td>Classical Evening</td>
-              <td>5th November 2025</td>
-              <td>Brisbane Riverstage</td>
-              <td>1</td>
-              <td><span class="badge bg-success">Confirmed</span></td>
-            </tr>
-            <tr>
-              <td>Bollywood Retro Night</td>
-              <td>15th October 2025</td>
-              <td>Sydney Opera House</td>
-              <td>4</td>
-              <td><span class="badge bg-danger">Cancelled</span></td>
-            </tr>
-            <tr>
-              <td>Indie Fusion Beats</td>
-              <td>28th October 2025</td>
-              <td>Melbourne Arena</td>
-              <td>2</td>
-              <td><span class="badge bg-success">Confirmed</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      {% if bookings %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle shadow-sm">
+            <thead class="table-dark">
+              <tr>
+                <th>Order ID</th>
+                <th>Event</th>
+                <th>Ticket Type</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+                <th>Booked On</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in bookings %}
+                <tr>
+                  <td class="fw-semibold">{{ booking.order_id }}</td>
+                  <td>
+                    <div class="fw-semibold">{{ booking.event.title }}</div>
+                    <small class="text-muted">{{ booking.event.start_dt.strftime('%d %b %Y %I:%M %p') if booking.event.start_dt else 'Date TBA' }}</small>
+                  </td>
+                  <td>{{ booking.ticket_type.name if booking.ticket_type else 'General Admission' }}</td>
+                  <td>{{ booking.qty }}</td>
+                  <td>${{ '{:,.2f}'.format(booking.unit_price or 0) }}</td>
+                  <td>${{ '{:,.2f}'.format(booking.total or 0) }}</td>
+                  <td>{{ booking.booked_at.strftime('%d %b %Y %I:%M %p') }}</td>
+                  <td class="text-end">
+                    <a href="{{ url_for('main.event_details', event_id=booking.event_id) }}" class="btn btn-outline-secondary btn-sm">View Event</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-center py-5">
+          <h5 class="fw-bold">No bookings yet</h5>
+          <p class="text-muted">Browse events and book your first tickets.</p>
+          <a href="{{ url_for('main.index') }}#events" class="btn btn-warning">Explore Events</a>
+        </div>
+      {% endif %}
     </div>
   </section>
 

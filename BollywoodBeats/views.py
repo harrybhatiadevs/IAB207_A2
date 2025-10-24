@@ -17,9 +17,10 @@ from .forms import (
     EventForm,
     EventUpdateForm,
     DeleteEventForm,
+    BookingForm,
     EVENT_CATEGORY_CHOICES,
 )
-from .models import User, Event, EventStatus, TicketType
+from .models import User, Event, EventStatus, TicketType, Booking
 from werkzeug.utils import secure_filename
 from pathlib import Path
 from uuid import uuid4
@@ -52,14 +53,87 @@ def index():
     )
 
 
-# Event details page route
-@main_bp.route('/event/<int:event_id>')
+# Event details page route (with booking)
+@main_bp.route('/event/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def event_details(event_id):
-    event = db.session.get(Event, event_id)
+    event = (
+        db.session.execute(
+            db.select(Event)
+            .options(
+                selectinload(Event.ticket_types).selectinload(TicketType.bookings),
+                selectinload(Event.bookings),
+            )
+            .where(Event.id == event_id)
+        )
+        .scalars()
+        .first()
+    )
     if event is None:
         abort(404)
-    return render_template('event.html', event=event)
+
+    form = BookingForm()
+
+    ticket_options: list[tuple[int, str]] = []
+    if event.ticket_types:
+        for ticket in event.ticket_types:
+            remaining = ticket.remaining_quantity
+            label = f"{ticket.name} - ${ticket.price:.2f} ({remaining} left)"
+            ticket_options.append((ticket.id, label))
+    else:
+        remaining = event.remaining_capacity
+        label = f"General Admission - ${event.price:.2f} ({remaining} left)"
+        ticket_options.append((0, label))
+
+    form.ticket_type_id.choices = ticket_options
+
+    if request.method == 'GET' and not form.quantity.data:
+        form.quantity.data = 1
+
+    if form.validate_on_submit():
+        quantity = form.quantity.data
+        selected_id = form.ticket_type_id.data
+
+        if event.ticket_types:
+            ticket_type = next((tt for tt in event.ticket_types if tt.id == selected_id), None)
+            if ticket_type is None:
+                flash('Invalid ticket selection.')
+                return redirect(url_for('main.event_details', event_id=event.id))
+            available = ticket_type.remaining_quantity
+            unit_price = ticket_type.price or Decimal("0")
+        else:
+            ticket_type = None
+            available = event.remaining_capacity
+            unit_price = event.price or Decimal("0")
+
+        if event.status and event.status != EventStatus.OPEN:
+            flash('Bookings are currently closed for this event.')
+            return redirect(url_for('main.event_details', event_id=event.id))
+
+        if available <= 0:
+            flash('This ticket option is sold out.')
+            return redirect(url_for('main.event_details', event_id=event.id))
+        if quantity > available:
+            flash(f"Only {available} tickets remain for that selection.")
+            return redirect(url_for('main.event_details', event_id=event.id))
+
+        order_id = uuid4().hex[:10].upper()
+
+        booking = Booking(
+            order_id=order_id,
+            user_id=current_user.id,
+            event_id=event.id,
+            ticket_type=ticket_type,
+            qty=quantity,
+            unit_price=unit_price,
+        )
+        db.session.add(booking)
+        db.session.commit()
+
+        flash('Booking confirmed! You can view it under Booking History.')
+        return redirect(url_for('main.booking_history'))
+
+    return render_template('event.html', event=event, form=form)
 
 # Event creation page route
 @main_bp.route('/create', methods=['GET', 'POST'])
@@ -82,32 +156,41 @@ def create_event():
             form.image.data.save(destination)
             image_path = f"uploads/{unique_name}"
 
-        ticket_tiers: list[TicketType] = []
+        submitted_tiers: list[dict] = []
         for entry in form.ticket_types.entries:
             name = (entry.form.name.data or "").strip()
             if not name:
                 continue
             price = entry.form.price.data
-            if price is None:
-                price = Decimal("0")
+            if price is None or price < 0:
+                flash('Ticket prices cannot be negative.')
+                return render_template('create.html', form=form)
             quantity = entry.form.quantity.data or 0
-            ticket_tiers.append(
-                TicketType(
-                    name=name,
-                    price=price,
-                    quantity=quantity,
-                )
+            submitted_tiers.append(
+                {"name": name, "price": price, "quantity": quantity}
             )
 
-        total_capacity = sum(tier.quantity for tier in ticket_tiers) or form.capacity.data
-        base_price = form.price.data
-        if ticket_tiers:
-            base_price = min(
-                (tier.price for tier in ticket_tiers if tier.price is not None),
-                default=base_price,
-            )
-        if base_price is None:
-            base_price = Decimal("0")
+        if not submitted_tiers:
+            flash('Add at least one ticket type with a name and quantity.')
+            return render_template('create.html', form=form)
+
+        if any(tier["quantity"] <= 0 for tier in submitted_tiers):
+            flash('Ticket quantities must be greater than zero.')
+            return render_template('create.html', form=form)
+
+        total_capacity = sum(tier["quantity"] for tier in submitted_tiers)
+        if not total_capacity or total_capacity <= 0:
+            total_capacity = form.capacity.data
+        if not total_capacity or total_capacity <= 0:
+            flash('Total capacity must be greater than zero.')
+            return render_template('create.html', form=form)
+
+        base_price = min((tier["price"] for tier in submitted_tiers), default=Decimal("0")) or Decimal("0")
+
+        ticket_tiers: list[TicketType] = [
+            TicketType(name=tier["name"], price=tier["price"], quantity=tier["quantity"])
+            for tier in submitted_tiers
+        ]
 
         event = Event(
             title=form.title.data.strip(),
@@ -162,7 +245,6 @@ def edit_event(event_id):
         form.city.data = event.city
         form.start_dt.data = event.start_dt
         form.capacity.data = event.total_capacity or event.capacity
-        form.price.data = event.lowest_ticket_price or event.price
 
         while len(form.ticket_types.entries):
             form.ticket_types.pop_entry()
@@ -185,32 +267,59 @@ def edit_event(event_id):
             form.image.data.save(destination)
             image_path = f"uploads/{unique_name}"
 
-        ticket_tiers: list[TicketType] = []
+        submitted_tiers: list[dict] = []
         for entry in form.ticket_types.entries:
             name = (entry.form.name.data or "").strip()
             if not name:
                 continue
             price = entry.form.price.data
-            if price is None:
-                price = Decimal("0")
+            if price is None or price < 0:
+                flash('Ticket prices cannot be negative.')
+                return render_template('edit_event.html', form=form, delete_form=delete_form, event=event)
             quantity = entry.form.quantity.data or 0
-            ticket_tiers.append(
-                TicketType(
-                    name=name,
-                    price=price,
-                    quantity=quantity,
-                )
+            submitted_tiers.append(
+                {"name": name, "price": price, "quantity": quantity}
             )
 
-        total_capacity = sum(tier.quantity for tier in ticket_tiers) or form.capacity.data
-        base_price = form.price.data
-        if ticket_tiers:
-            base_price = min(
-                (tier.price for tier in ticket_tiers if tier.price is not None),
-                default=base_price,
-            )
-        if base_price is None:
-            base_price = Decimal("0")
+        if not submitted_tiers:
+            flash('Add at least one ticket type with a name and quantity.')
+            return render_template('edit_event.html', form=form, delete_form=delete_form, event=event)
+
+        existing_types = list(event.ticket_types)
+        updated_types: list[TicketType] = []
+
+        for idx, data in enumerate(submitted_tiers):
+            if data["quantity"] <= 0:
+                flash('Ticket quantities must be greater than zero.')
+                return render_template('edit_event.html', form=form, delete_form=delete_form, event=event)
+            if idx < len(existing_types):
+                tier = existing_types[idx]
+                if data["quantity"] < tier.sold_quantity:
+                    flash(f"Quantity for {tier.name} cannot be less than tickets already sold ({tier.sold_quantity}).")
+                    return render_template('edit_event.html', form=form, delete_form=delete_form, event=event)
+                tier.name = data["name"]
+                tier.price = data["price"]
+                tier.quantity = data["quantity"]
+            else:
+                tier = TicketType(
+                    name=data["name"],
+                    price=data["price"],
+                    quantity=data["quantity"],
+                )
+            updated_types.append(tier)
+
+        for leftover in existing_types[len(submitted_tiers):]:
+            if leftover.bookings:
+                updated_types.append(leftover)
+            else:
+                db.session.delete(leftover)
+
+        total_capacity = sum(tier.quantity for tier in updated_types)
+        if not total_capacity or total_capacity <= 0:
+            total_capacity = form.capacity.data or event.capacity
+        if not total_capacity or total_capacity <= 0:
+            flash('Total capacity must be greater than zero.')
+            return render_template('edit_event.html', form=form, delete_form=delete_form, event=event)
 
         event.title = form.title.data.strip()
         event.category = form.category.data
@@ -221,18 +330,17 @@ def edit_event(event_id):
         event.city = form.city.data.strip()
         event.start_dt = form.start_dt.data
         event.capacity = total_capacity
-        event.price = base_price
+        event.price = (
+            min((tier.price for tier in updated_types if tier.price is not None), default=Decimal("0"))
+            if updated_types
+            else Decimal("0")
+        )
 
-        event.ticket_types.clear()
-        for tier in ticket_tiers:
-            event.ticket_types.append(tier)
+        event.ticket_types = updated_types
 
         db.session.commit()
         flash('Event updated successfully!')
         return redirect(url_for('main.my_events'))
-
-    while len(form.ticket_types.entries) < 3:
-        form.ticket_types.append_entry()
 
     while len(form.ticket_types.entries) < 3:
         form.ticket_types.append_entry()
@@ -261,11 +369,15 @@ def delete_event(event_id):
 @main_bp.route('/history')
 @login_required
 def booking_history():
-    # Placeholder booking data
-    bookings = [
-        {'event_name': 'Bollywood Beats', 'order_id': 'A123', 'date': '2025-10-01'},
-        {'event_name': 'Rhythm Nation', 'order_id': 'B456', 'date': '2025-09-15'},
-    ]
+    bookings = db.session.scalars(
+        db.select(Booking)
+        .options(
+            selectinload(Booking.event),
+            selectinload(Booking.ticket_type),
+        )
+        .where(Booking.user_id == current_user.id)
+        .order_by(Booking.booked_at.desc())
+    ).all()
     return render_template('history.html', bookings=bookings)
 
 @main_bp.route('/account', methods=['GET', 'POST'])
