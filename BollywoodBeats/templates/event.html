@@ -11,35 +11,20 @@
 </head>
 <body>
 
-  <header class="custom-header">
-    <div class="custom-header-top">
-      <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
-        <div class="d-flex align-items-center gap-2">
-          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-          <h1 class="m-0">Bollywood Beats</h1>
-        </div>
-        {% if current_user.is_authenticated %}
-          <div class="d-flex gap-2">
-            <a href="{{ url_for('main.account') }}" class="btn btn-sm"
-               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
-            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
-               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+  {% include 'partials/nav.html' %}
+
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
-        {% endif %}
-      </div>
-    </div>
-    <nav class="custom-header-nav">
-      <ul class="nav justify-content-center m-0">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#events">Events</a></li>
-        {% if current_user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_events') }}">My Events</a></li>
-        {% endif %}
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
-      </ul>
-    </nav>
-  </header>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
 
   <nav aria-label="breadcrumb" class="custom-breadcrumb">
     <div class="container">
@@ -118,7 +103,7 @@
           {% endif %}
         </div>
         <div class="col-lg-4">
-          <div class="card shadow-sm">
+          <div class="card shadow-sm mb-4">
             <div class="card-body">
               <h5 class="card-title">At a glance</h5>
               <ul class="list-unstyled mb-0">
@@ -126,12 +111,48 @@
                 <li class="mb-2"><strong>Start:</strong> {{ event.start_dt.strftime('%d %B %Y %I:%M %p') if event.start_dt else 'Date TBA' }}</li>
                 <li class="mb-2"><strong>Venue:</strong> {{ event.venue }}</li>
                 <li class="mb-2"><strong>City:</strong> {{ event.city }}</li>
-                <li class="mb-2"><strong>Capacity:</strong> {{ event.total_capacity }}</li>
+                <li class="mb-2"><strong>Total Capacity:</strong> {{ event.total_capacity }}</li>
+                <li class="mb-2"><strong>Remaining Tickets:</strong> {{ event.remaining_capacity }}</li>
                 <li class="mb-2"><strong>Ticket Price From:</strong> ${{ '{:,.2f}'.format(event.lowest_ticket_price or 0) }}</li>
                 <li><strong>Status:</strong> {{ event.status.value if event.status else 'Open' }}</li>
               </ul>
               {% if current_user.is_authenticated and current_user.id == event.owner_id %}
-                <a href="{{ url_for('main.edit_event', event_id=event.id) }}" class="btn btn-warning w-100 mt-3">Edit Event</a>
+                <a href="{{ url_for('main.edit_event', event_id=event.id) }}" class="btn btn-warning w-100 mt-3">Manage Event</a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Book Tickets</h5>
+              <p class="mb-2">From ${{ '{:,.2f}'.format(event.lowest_ticket_price or 0) }} per ticket</p>
+              <p class="text-muted small mb-3">Secure your spot before it sells out.</p>
+
+              {% if not current_user.is_authenticated %}
+                <div class="alert alert-info mb-3">
+                  Please <a href="{{ url_for('auth.login') }}" class="alert-link">log in</a> to book tickets.
+                </div>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-warning w-100">Create an account</a>
+              {% else %}
+                {% if status_name == 'CANCELLED' %}
+                  <div class="alert alert-danger mb-0">This event has been cancelled.</div>
+                {% elif status_name == 'INACTIVE' %}
+                  <div class="alert alert-secondary mb-0">Bookings have closed for this event.</div>
+                {% elif event.remaining_capacity <= 0 %}
+                  <div class="alert alert-secondary mb-0">Sold out. Join us for the next one!</div>
+                {% else %}
+                  <form method="post" action="{{ url_for('main.book_event', event_id=event.id) }}" class="needs-validation" novalidate>
+                    {{ booking_form.hidden_tag() }}
+                    <div class="mb-3">
+                      {{ booking_form.qty.label(class='form-label') }}
+                      {{ booking_form.qty(class='form-control', min=1, max=event.remaining_capacity) }}
+                      <div class="form-text text-muted">Up to {{ event.remaining_capacity }} tickets available.</div>
+                      {% for error in booking_form.qty.errors %}
+                        <div class="form-text text-danger">{{ error }}</div>
+                      {% endfor %}
+                    </div>
+                    {{ booking_form.submit(class_='btn btn-warning w-100 fw-semibold') }}
+                  </form>
+                {% endif %}
               {% endif %}
             </div>
           </div>
@@ -141,10 +162,59 @@
   </section>
 
   <section class="py-5 bg-light">
-    <div class="container text-center">
-      <h2 class="mb-3">Ready to join?</h2>
-      <p class="text-muted mb-4">Contact the organiser or check back soon for booking options.</p>
-      <a href="{{ url_for('main.index') }}#events" class="btn btn-warning">Back to Events</a>
+    <div class="container">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <h2 class="mb-3 mb-md-0">Comments</h2>
+        <a href="{{ url_for('main.index') }}#events" class="btn btn-outline-dark">Back to Events</a>
+      </div>
+
+      {% if current_user.is_authenticated %}
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Share your thoughts</h5>
+            <form method="post" action="{{ url_for('main.post_comment', event_id=event.id) }}">
+              {{ comment_form.hidden_tag() }}
+              <div class="mb-3">
+                {{ comment_form.body.label(class='form-label') }}
+                {{ comment_form.body(class='form-control', rows=3, placeholder='Tell other fans what to expect') }}
+                {% for error in comment_form.body.errors %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+              {{ comment_form.submit(class_='btn btn-warning fw-semibold') }}
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-info mb-4">
+          <strong>Want to leave a review?</strong>
+          <a href="{{ url_for('auth.login') }}" class="alert-link">Log in</a> or
+          <a href="{{ url_for('auth.register') }}" class="alert-link">register</a> to share your experience.
+        </div>
+      {% endif %}
+
+      {% if comments %}
+        <div class="list-group shadow-sm">
+          {% for comment in comments %}
+            {% set commenter = comment.user %}
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">
+                    {{ (commenter.first_name + ' ' + commenter.last_name).strip() if commenter else 'Former member' }}
+                  </h6>
+                  <p class="mb-0">{{ comment.body }}</p>
+                </div>
+                <small class="text-muted ms-3">
+                  {{ comment.posted_at.strftime('%d %b %Y %I:%M %p') if comment.posted_at else '' }}
+                </small>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No comments yet. Be the first to share your excitement!</p>
+      {% endif %}
     </div>
   </section>
 

@@ -11,56 +11,63 @@
 </head>
 <body>
 
-  <header class="custom-header">
-    <div class="custom-header-top">
-      <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
-        <div class="d-flex align-items-center gap-2">
-          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-          <h1 class="m-0">Bollywood Beats</h1>
-        </div>
-        {% if current_user.is_authenticated %}
-          <div class="d-flex gap-2">
-            <a href="{{ url_for('main.account') }}" class="btn btn-sm"
-               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
-            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
-               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
-          </div>
-        {% endif %}
-      </div>
-    </div>
+  {% include 'partials/nav.html' %}
 
-    <nav class="custom-header-nav">
-      <ul class="nav justify-content-center m-0">
-        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.index') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#events">Events</a></li>
-        {% if current_user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_events') }}">My Events</a></li>
-        {% endif %}
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
-      </ul>
-    </nav>
-  </header>
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
 
   <section class="bg-warning text-dark text-center py-5">
     <div class="container">
       <h1 class="display-4 fw-bold">Welcome to Bollywood Beats</h1>
       <p class="lead">Discover and book unforgettable music experiences across Australia.</p>
+      {% if not current_user.is_authenticated %}
+        <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
+          <a href="{{ url_for('auth.login') }}" class="btn"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;padding:0.85rem 2.5rem;border-radius:0.75rem;">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="btn"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;padding:0.85rem 2.5rem;border-radius:0.75rem;">Register</a>
+        </div>
+      {% endif %}
     </div>
   </section>
 
   <section class="py-5" id="events">
     <div class="container">
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-        <h2 class="mb-3 mb-md-0">Upcoming Events</h2>
-        <form method="get" class="d-flex gap-2">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3">
+        <div>
+          <h2 class="mb-1">Upcoming Events</h2>
+          {% if search_term %}
+            <p class="text-muted mb-0">Showing results for "<strong>{{ search_term }}</strong>"</p>
+          {% else %}
+            <p class="text-muted mb-0">Filter by category or search for the perfect night out.</p>
+          {% endif %}
+        </div>
+        <form method="get" class="row g-2 align-items-center flex-grow-1 flex-lg-grow-0">
           <label for="category" class="visually-hidden">Filter by category</label>
-          <select name="category" id="category" class="form-select">
-            {% for category in categories %}
-              <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
-            {% endfor %}
-          </select>
-          <button type="submit" class="btn btn-dark">Filter</button>
+          <div class="col-12 col-sm-auto">
+            <select name="category" id="category" class="form-select">
+              {% for category in categories %}
+                <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 col-sm-auto">
+            <input type="search" class="form-control" name="q" placeholder="Search events"
+                   value="{{ search_term }}">
+          </div>
+          <div class="col-12 col-sm-auto d-grid d-sm-block">
+            <button type="submit" class="btn btn-dark w-100">Apply</button>
+          </div>
         </form>
       </div>
 

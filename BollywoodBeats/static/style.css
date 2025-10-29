@@ -71,6 +71,21 @@ main {
   border-radius: 5px;
 }
 
+.custom-header-nav .dropdown-menu {
+  background-color: #212529;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.custom-header-nav .dropdown-item {
+  color: #f8f9fa;
+}
+
+.custom-header-nav .dropdown-item:hover {
+  background-color: #ffc107;
+  color: #212529;
+}
+
 /* Sleek navbar hover and spacing tweaks */
 .navbar-nav {
   gap: 0.5rem; /* spacing between nav items */
@@ -236,4 +251,3 @@ footer img {
   background-color: #ffc107;
   width: 100%;
 }
-

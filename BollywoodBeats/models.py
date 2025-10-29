@@ -82,8 +82,12 @@ class Event(db.Model):
     )
 
     @property
+    def booked_quantity(self) -> int:
+        return sum(b.qty or 0 for b in self.bookings)
+
+    @property
     def remaining_capacity(self) -> int:
-        return max(0, self.total_capacity - sum(b.qty for b in self.bookings))
+        return max(0, (self.total_capacity or 0) - self.booked_quantity)
 
     @property
     def total_capacity(self) -> int:
@@ -97,6 +101,30 @@ class Event(db.Model):
         if prices:
             return min(prices)
         return self.price or Decimal("0")
+
+    def refresh_status(self, *, now: datetime | None = None) -> bool:
+        """
+        Update the event status based on timing and capacity rules.
+        Returns True when status changes.
+        """
+        if self.status == EventStatus.CANCELLED:
+            return False
+
+        if now is None:
+            now = datetime.utcnow()
+
+        new_status = EventStatus.OPEN
+
+        if self.start_dt and self.start_dt < now:
+            new_status = EventStatus.INACTIVE
+        elif self.remaining_capacity <= 0:
+            new_status = EventStatus.SOLD_OUT
+
+        if self.status != new_status:
+            self.status = new_status
+            return True
+
+        return False
 
     def __repr__(self) -> str:
         return f"<Event {self.title} #{self.id}>"

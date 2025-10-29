@@ -14,111 +14,117 @@
 </head>
 <body>
 
-  <!-- HEADER (Logo row + navbar) -->
-  <header class="custom-header">
-    <div class="custom-header-top">
-      <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
-        <div class="d-flex align-items-center gap-2">
-          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-          <h1 class="m-0">Bollywood Beats</h1>
-        </div>
-        {% if current_user.is_authenticated %}
-          <div class="d-flex gap-2">
-            <a href="{{ url_for('main.account') }}" class="btn btn-sm"
-               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
-            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
-               style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-    <nav class="custom-header-nav">
-      <ul class="nav justify-content-center m-0">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#events">Events</a></li>
-        {% if current_user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_events') }}">My Events</a></li>
-        {% endif %}
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
-        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
-      </ul>
-    </nav>
-  </header>
+  {% include 'partials/nav.html' %}
 
   <!-- BOOKING HISTORY SECTION -->
   <section class="py-5 bg-light">
     <div class="container">
-      <h2 class="text-center mb-4">Your Booking History</h2>
-
-      <!-- Search and Filter Row -->
-      <div class="row mb-4">
-        <div class="col-md-6">
-          <input type="text" class="form-control" placeholder="Search by event name...">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3">
+        <div>
+          <h2 class="mb-1">Your Booking History</h2>
+          <p class="text-muted mb-0">Track past and upcoming reservations with your reference numbers.</p>
         </div>
-        <div class="col-md-3">
-          <select class="form-select">
-            <option value="">Filter by Status</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="pending">Pending</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <button class="btn btn-warning w-100">Apply</button>
-        </div>
+        <form method="get" class="d-flex flex-column flex-sm-row gap-2">
+          <input type="search" class="form-control" name="q" placeholder="Search by event name"
+                 value="{{ search_term }}">
+          <button class="btn btn-dark" type="submit">Search</button>
+        </form>
       </div>
 
-      <!-- BOOKING TABLE -->
-      <div class="table-responsive">
-        <table class="table table-hover align-middle shadow-sm">
-          <thead class="table-dark">
-            <tr>
-              <th>Event Name</th>
-              <th>Date</th>
-              <th>Venue</th>
-              <th>Tickets</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Bollywood Retro Night</td>
-              <td>15th October 2025</td>
-              <td>Sydney Opera House</td>
-              <td>2</td>
-              <td><span class="badge bg-success">Confirmed</span></td>
-            </tr>
-            <tr>
-              <td>Indie Fusion Beats</td>
-              <td>28th October 2025</td>
-              <td>Melbourne Arena</td>
-              <td>3</td>
-              <td><span class="badge bg-warning text-dark">Pending</span></td>
-            </tr>
-            <tr>
-              <td>Classical Evening</td>
-              <td>5th November 2025</td>
-              <td>Brisbane Riverstage</td>
-              <td>1</td>
-              <td><span class="badge bg-success">Confirmed</span></td>
-            </tr>
-            <tr>
-              <td>Bollywood Retro Night</td>
-              <td>15th October 2025</td>
-              <td>Sydney Opera House</td>
-              <td>4</td>
-              <td><span class="badge bg-danger">Cancelled</span></td>
-            </tr>
-            <tr>
-              <td>Indie Fusion Beats</td>
-              <td>28th October 2025</td>
-              <td>Melbourne Arena</td>
-              <td>2</td>
-              <td><span class="badge bg-success">Confirmed</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% if bookings %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle shadow-sm">
+            <thead class="table-dark">
+              <tr>
+                <th scope="col">Image</th>
+                <th scope="col">Event</th>
+                <th scope="col">Order ID</th>
+                <th scope="col">Tickets</th>
+                <th scope="col">Total</th>
+                <th scope="col">Booked On</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in bookings %}
+                {% set event = booking.event %}
+                {% if event and event.status %}
+                  {% set status_name = event.status.name %}
+                  {% set status_value = event.status.value %}
+                {% elif event %}
+                  {% set status_name = 'OPEN' %}
+                  {% set status_value = 'Open' %}
+                {% else %}
+                  {% set status_name = 'REMOVED' %}
+                  {% set status_value = 'Removed' %}
+                {% endif %}
+                {% if status_name == 'OPEN' %}
+                  {% set badge_class = 'bg-success' %}
+                {% elif status_name == 'SOLD_OUT' %}
+                  {% set badge_class = 'bg-secondary' %}
+                {% elif status_name == 'CANCELLED' %}
+                  {% set badge_class = 'bg-danger' %}
+                {% elif status_name == 'REMOVED' %}
+                  {% set badge_class = 'bg-secondary' %}
+                {% else %}
+                  {% set badge_class = 'bg-warning text-dark' %}
+                {% endif %}
+                <tr>
+                  <td>
+                    {% if event %}
+                      {% if event.image_url %}
+                        {% if event.image_url.startswith('http') %}
+                          {% set thumb = event.image_url %}
+                        {% else %}
+                          {% set thumb = url_for('static', filename=event.image_url) %}
+                        {% endif %}
+                      {% else %}
+                        {% set thumb = url_for('static', filename='concert7.jpg') %}
+                      {% endif %}
+                    {% else %}
+                      {% set thumb = url_for('static', filename='concert7.jpg') %}
+                    {% endif %}
+                    <img src="{{ thumb }}" alt="{{ event.title if event else 'Event image' }}" class="img-thumbnail" style="width: 72px; height: 72px; object-fit: cover;">
+                  </td>
+                  <td>
+                    {% if event %}
+                      <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="fw-semibold text-decoration-none">
+                        {{ event.title }}
+                      </a>
+                      <div class="text-muted small">{{ event.city }} &middot; {{ event.venue }}</div>
+                    {% else %}
+                      <span class="fw-semibold">Event unavailable</span>
+                      <div class="text-muted small">This event has been removed.</div>
+                    {% endif %}
+                  </td>
+                  <td><code>{{ booking.order_id }}</code></td>
+                  <td>{{ booking.qty }}</td>
+                  <td>${{ '{:,.2f}'.format(booking.total or 0) }}</td>
+                  <td>{{ booking.booked_at.strftime('%d %b %Y %I:%M %p') if booking.booked_at else '' }}</td>
+                  <td><span class="badge {{ badge_class }}">{{ status_value }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-center py-5">
+          <h5 class="fw-bold">No bookings yet</h5>
+          <p class="text-muted">Browse our events and reserve your seats.</p>
+          <a href="{{ url_for('main.index') }}#events" class="btn btn-warning">Find Events</a>
+        </div>
+      {% endif %}
     </div>
   </section>
 
