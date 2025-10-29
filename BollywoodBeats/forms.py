@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms.fields import (
     TextAreaField,
@@ -9,11 +10,17 @@ from wtforms.fields import (
     DecimalField,
     SelectField,
 )
-from wtforms.validators import InputRequired, Length, Email, EqualTo, Optional, NumberRange
+from wtforms.validators import (
+    InputRequired,
+    Length,
+    Email,
+    EqualTo,
+    Optional,
+    NumberRange,
+    ValidationError,
+)
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import FieldList, FormField, Form
-
-from .models import EventStatus
 
 # Creates the login information
 class LoginForm(FlaskForm):
@@ -115,9 +122,6 @@ EVENT_CATEGORY_CHOICES = [
 ]
 
 
-EVENT_STATUS_CHOICES = [(status.name, status.value) for status in EventStatus]
-
-
 class TicketTierForm(Form):
     name = StringField(
         "Ticket Name",
@@ -190,6 +194,12 @@ class EventForm(FlaskForm):
     ticket_types = FieldList(FormField(TicketTierForm), min_entries=3, max_entries=5)
     submit = SubmitField("Create Event")
 
+    def validate_start_dt(self, field):
+        if field.data is None:
+            return
+        if field.data <= datetime.utcnow():
+            raise ValidationError("Start date must be in the future.")
+
 
 class EventUpdateForm(FlaskForm):
     title = StringField(
@@ -200,11 +210,6 @@ class EventUpdateForm(FlaskForm):
         "Category",
         choices=EVENT_CATEGORY_CHOICES,
         validators=[InputRequired("Select a category")],
-    )
-    status = SelectField(
-        "Status",
-        choices=EVENT_STATUS_CHOICES,
-        validators=[InputRequired("Select a status")],
     )
     description = TextAreaField(
         "Description",
@@ -246,6 +251,38 @@ class EventUpdateForm(FlaskForm):
     ticket_types = FieldList(FormField(TicketTierForm), min_entries=3, max_entries=5)
     submit = SubmitField("Save Changes")
 
+    def validate_start_dt(self, field):
+        if field.data is None:
+            return
+        if field.data <= datetime.utcnow():
+            raise ValidationError("Start date must be in the future.")
+
 
 class DeleteEventForm(FlaskForm):
     submit = SubmitField("Delete Event")
+
+
+class CancelEventForm(FlaskForm):
+    submit = SubmitField("Cancel Event")
+
+
+class BookingForm(FlaskForm):
+    qty = IntegerField(
+        "Number of Tickets",
+        validators=[
+            InputRequired("Enter how many tickets to book"),
+            NumberRange(min=1, message="You must book at least one ticket"),
+        ],
+    )
+    submit = SubmitField("Confirm Booking")
+
+
+class CommentForm(FlaskForm):
+    body = TextAreaField(
+        "Leave a comment",
+        validators=[
+            InputRequired("Enter a comment"),
+            Length(min=5, max=500, message="Comment must be between 5 and 500 characters"),
+        ],
+    )
+    submit = SubmitField("Post Comment")

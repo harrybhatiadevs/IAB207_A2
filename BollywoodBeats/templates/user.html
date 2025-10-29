@@ -11,17 +11,11 @@
 </head>
 <body>
 
-  <!-- Black header with logo -->
-  <div class="custom-header-top">
-    <div class="d-flex align-items-center gap-2 px-2 px-sm-3">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-      <h1 class="m-0">Bollywood Beats</h1>
-    </div>
-  </div>
+  {% include 'partials/nav.html' %}
 
   <!-- Back button -->
   <div class="container-fluid mt-3 px-2 px-sm-3">
-    <a href="{{ url_for('main.landing') }}" class="btn"
+    <a href="{{ url_for('main.index') }}" class="btn"
        style="background-color: #ef902f; color: white; font-weight: 700; border: none; padding: 0.5rem 1.25rem; border-radius: 0.5rem;">&larr; Back</a>
   </div>
 

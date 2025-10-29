@@ -1,0 +1,66 @@
+<header class="custom-header">
+  <div class="custom-header-top">
+    <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
+      <div class="d-flex align-items-center gap-2">
+        <a href="{{ url_for('main.index') }}" class="d-flex align-items-center gap-2 text-decoration-none text-white">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
+          <span class="h5 mb-0 text-white">Bollywood Beats</span>
+        </a>
+      </div>
+      <div class="d-flex gap-2">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('main.account') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="btn btn-sm"
+             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <nav class="custom-header-nav">
+    <ul class="nav justify-content-center m-0 align-items-center">
+      <li class="nav-item">
+        <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}"
+           href="{{ url_for('main.index') }}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('main.index') }}#events">Events</a>
+      </li>
+      {% if nav_categories %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Categories
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('main.index') }}">All</a></li>
+            {% for category in nav_categories %}
+              <li>
+                <a class="dropdown-item" href="{{ url_for('main.index', category=category) }}">{{ category }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endif %}
+      {% if current_user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'main.my_events' %}active{% endif %}"
+             href="{{ url_for('main.my_events') }}">My Events</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'main.create_event' %}active{% endif %}"
+             href="{{ url_for('main.create_event') }}">Create Event</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'main.booking_history' %}active{% endif %}"
+             href="{{ url_for('main.booking_history') }}">Booking History</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+</header>

@@ -14,25 +14,7 @@
 </head>
 <body>
 
-  <!-- ================= HEADER (Black only, no navbar) ================= -->
-  <div class="custom-header-top">
-    <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
-      <div class="d-flex align-items-center gap-2">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-        <h1 class="m-0">Bollywood Beats</h1>
-      </div>
-      {% if current_user.is_authenticated %}
-        <div class="d-flex gap-2">
-          <a href="{{ url_for('main.my_events') }}" class="btn btn-sm"
-             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">My Events</a>
-          <a href="{{ url_for('main.account') }}" class="btn btn-sm"
-             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
-          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
-             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
-        </div>
-      {% endif %}
-    </div>
-  </div>
+  {% include 'partials/nav.html' %}
 
   <!-- ================= HERO SECTION ================= -->
   <section class="bg-warning text-dark text-center py-5">
@@ -55,7 +37,7 @@
       <div class="row g-4">
         <div class="col-md-4">
           <div class="card border-0 shadow-sm h-100">
-            <img src="static/concert2.jpg"
+            <img src="{{ url_for('static', filename='concert2.jpg') }}"
                  class="card-img-top" alt="Retro Vibes">
             <div class="card-body">
               <h5 class="card-title">Live Music Events</h5>
@@ -66,7 +48,7 @@
 
         <div class="col-md-4">
           <div class="card border-0 shadow-sm h-100">
-            <img src="static/concert4.jpg" 
+            <img src="{{ url_for('static', filename='concert4.jpg') }}" 
                  class="card-img-top" alt="Modern Beats">
             <div class="card-body">
               <h5 class="card-title">Book Instantly</h5>
@@ -77,7 +59,7 @@
 
         <div class="col-md-4">
           <div class="card border-0 shadow-sm h-100">
-            <img src="static/concert3.jpg"
+            <img src="{{ url_for('static', filename='concert3.jpg') }}"
                  class="card-img-top" alt="Community">
             <div class="card-body">
               <h5 class="card-title">Join the Community</h5>

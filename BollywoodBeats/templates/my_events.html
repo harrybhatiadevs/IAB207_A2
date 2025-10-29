@@ -11,31 +11,7 @@
 </head>
 <body>
 
-  <header class="custom-header">
-    <div class="custom-header-top">
-      <div class="d-flex align-items-center justify-content-between w-100 px-2 px-sm-3">
-        <div class="d-flex align-items-center gap-2">
-          <img src="{{ url_for('static', filename='logo.png') }}" alt="Bollywood Beats Logo" class="logo-img">
-          <h1 class="m-0">Bollywood Beats</h1>
-        </div>
-        <div class="d-flex gap-2">
-          <a href="{{ url_for('main.account') }}" class="btn btn-sm"
-             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Account</a>
-          <a href="{{ url_for('auth.logout') }}" class="btn btn-sm"
-             style="background-color:#ef902f;color:#fff;font-weight:700;border:none;">Logout</a>
-        </div>
-      </div>
-    </div>
-    <nav class="custom-header-nav">
-      <ul class="nav justify-content-center m-0">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}#events">Events</a></li>
-        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.my_events') }}">My Events</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_event') }}">Create Event</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.booking_history') }}">Booking History</a></li>
-      </ul>
-    </nav>
-  </header>
+  {% include 'partials/nav.html' %}
 
   <main class="container py-5">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
@@ -64,17 +40,30 @@
         <table class="table table-hover align-middle shadow-sm">
           <thead class="table-dark">
             <tr>
+              <th scope="col">Image</th>
               <th scope="col">Title</th>
               <th scope="col">Start</th>
               <th scope="col">Category</th>
               <th scope="col">Status</th>
-              <th scope="col">Tickets</th>
+              <th scope="col">Tickets (Remaining/Total)</th>
               <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
             {% for event in events %}
               <tr>
+                <td>
+                  {% if event.image_url %}
+                    {% if event.image_url.startswith('http') %}
+                      {% set thumb = event.image_url %}
+                    {% else %}
+                      {% set thumb = url_for('static', filename=event.image_url) %}
+                    {% endif %}
+                  {% else %}
+                    {% set thumb = url_for('static', filename='concert7.jpg') %}
+                  {% endif %}
+                  <img src="{{ thumb }}" alt="{{ event.title }}" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                </td>
                 <td>{{ event.title }}</td>
                 <td>{{ event.start_dt.strftime('%d %b %Y %I:%M %p') if event.start_dt else 'TBA' }}</td>
                 <td>{{ event.category }}</td>
@@ -92,7 +81,7 @@
                   {% endif %}
                   <span class="badge {{ badge_class }}">{{ status_value }}</span>
                 </td>
-                <td>{{ event.total_capacity }}</td>
+                <td>{{ event.remaining_capacity }} / {{ event.total_capacity }}</td>
                 <td class="text-end">
                   <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-outline-secondary btn-sm me-2">View</a>
                   <a href="{{ url_for('main.edit_event', event_id=event.id) }}" class="btn btn-warning btn-sm">Edit</a>
