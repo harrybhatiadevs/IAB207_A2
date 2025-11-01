@@ -1,3 +1,5 @@
+"""Database models and status calculation helpers for Bollywood Beats."""
+
 from datetime import datetime
 from enum import Enum
 from decimal import Decimal
@@ -108,6 +110,7 @@ class Event(db.Model):
         Returns True when status changes.
         """
         if self.status == EventStatus.CANCELLED:
+            # Respect manual cancellation; admins flip this switch explicitly.
             return False
 
         if now is None:
@@ -116,8 +119,10 @@ class Event(db.Model):
         new_status = EventStatus.OPEN
 
         if self.start_dt and self.start_dt < now:
+            # Past events fall back to INACTIVE so bookings close automatically.
             new_status = EventStatus.INACTIVE
         elif self.remaining_capacity <= 0:
+            # Otherwise treat zero stock as sold out (before time makes it inactive).
             new_status = EventStatus.SOLD_OUT
 
         if self.status != new_status:

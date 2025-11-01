@@ -1,3 +1,5 @@
+"""Route handlers and helper utilities for the public-facing site."""
+
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
@@ -41,6 +43,7 @@ main_bp = Blueprint("main", __name__)
 
 
 def _generate_order_id() -> str:
+    """Create a short uppercase code suitable for showing to attendees."""
     return uuid4().hex[:8].upper()
 
 
@@ -54,6 +57,7 @@ def _sync_event_statuses(events: list[Event]) -> None:
     for event in events:
         status_changed |= event.refresh_status(now=now)
     if status_changed:
+        # Avoid unnecessary writes; only sync when something changed.
         db.session.commit()
 
 
@@ -160,6 +164,7 @@ def book_event(event_id: int):
 
     order_id = _generate_order_id()
     while db.session.scalar(db.select(Booking).where(Booking.order_id == order_id)):
+        # In practice collisions are rare, but loop defensively to guarantee uniqueness.
         order_id = _generate_order_id()
 
     unit_price = event.price or Decimal("0")
@@ -209,6 +214,7 @@ def create_event():
     form = EventForm()
 
     if request.method == "GET":
+        # Ensure the dynamic FieldList renders the minimum number of rows.
         while len(form.ticket_types.entries) < form.ticket_types.min_entries:
             form.ticket_types.append_entry()
 
@@ -228,6 +234,7 @@ def create_event():
             name = (entry.form.name.data or "").strip()
             if not name:
                 continue
+            # Capture only filled-in rows; empty ones are placeholders in the UI.
             price = entry.form.price.data
             if price is None:
                 price = Decimal("0")
@@ -241,6 +248,7 @@ def create_event():
             )
 
         total_capacity = sum(tier.quantity for tier in ticket_tiers) or form.capacity.data
+        # When tiers are provided, use the cheapest tier as base price for listings.
         base_price = form.price.data
         if ticket_tiers:
             base_price = min(
@@ -326,6 +334,7 @@ def edit_event(event_id: int):
             entry.form.price.data = ticket.price
             entry.form.quantity.data = ticket.quantity
         while len(form.ticket_types.entries) < 3:
+            # Provide a couple of blank rows so new tiers can be added on edit.
             form.ticket_types.append_entry()
 
     if form.validate_on_submit():
@@ -344,6 +353,7 @@ def edit_event(event_id: int):
             name = (entry.form.name.data or "").strip()
             if not name:
                 continue
+            # Represent each tier as a fresh model instance to keep ORM state simple.
             price = entry.form.price.data
             if price is None:
                 price = Decimal("0")
@@ -357,6 +367,7 @@ def edit_event(event_id: int):
             )
 
         total_capacity = sum(tier.quantity for tier in ticket_tiers) or form.capacity.data
+        # When tiers exist we advertise the lowest price so listings stay honest.
         base_price = form.price.data
         if ticket_tiers:
             base_price = min(
@@ -377,9 +388,11 @@ def edit_event(event_id: int):
         event.price = base_price
 
         event.ticket_types.clear()
+        # Rebuild tiers from scratch so stale rows are removed cleanly.
         for tier in ticket_tiers:
             event.ticket_types.append(tier)
 
+        # Editing dates/capacity can change status, so refresh after updates.
         event.refresh_status()
         db.session.commit()
         flash("Event updated successfully!")

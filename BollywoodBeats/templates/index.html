@@ -13,18 +13,18 @@
 
   {% include 'partials/nav.html' %}
 
-  <div class="container mt-3">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="container mt-3">
         {% for message in messages %}
           <div class="alert alert-warning alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endfor %}
-      {% endif %}
-    {% endwith %}
-  </div>
+      </div>
+    {% endif %}
+  {% endwith %}
 
   <section class="bg-warning text-dark text-center py-5">
     <div class="container">

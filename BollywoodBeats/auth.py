@@ -1,3 +1,5 @@
+"""Authentication blueprint for handling login, registration, and logout."""
+
 from flask import Blueprint, flash, render_template, url_for, redirect
 from sqlalchemy import or_
 from flask_login import login_user, logout_user, login_required
@@ -13,6 +15,7 @@ def login():
     error = None
 
     if form.validate_on_submit():
+        # Accept either username or email in the single login field.
         identifier = form.user_name.data.strip()
         password = form.password.data
         user = db.session.scalar(
@@ -69,7 +72,7 @@ def register():
             contact_number=contact_number,
             street_address=street_address
         )
-        
+        # Store a PBKDF2 hash rather than the raw password.
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()

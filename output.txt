@@ -1,0 +1,26 @@
+Thoe (6):
+      pulling from main
+      Merge branch 'zain-branch' of https://github.com/harrybhatiadevs/IAB207_A2 into thoe
+      added register and login functionality, 3 new templates and minor changes to main pages
+      Merge branch 'zain-branch' of https://github.com/harrybhatiadevs/IAB207_A2 into thoe
+      inor extra changes"
+      Added functionality for viewing, creating, editing and deleting events, added functionality for editing and deleting user information, included missing fields for user data and deleted hard coded data on homepage
+
+Zain Khokhar (3):
+      feat(task11): app factory + SQLAlchemy models; move main.py to repo root
+      chore: ignore venv, pycache, db
+      fix(models): use pbkdf2 hashing; finalize Task 11 schema
+
+harrybhatiadevs (11):
+      Initial commit
+      Initial commit with starter code
+      test commit
+      remove duplicate file
+      renamed files as per assignment description
+      Add .gitignore to remove .DS_Store from tracking
+      Fix .gitignore to exclude .DS_Store
+      Clean up duplicate .gitignore, properly ignore .DS_Store
+      interigated zains website to template and made it work with flask
+      completed tasks off project backlog
+      completed tasks off project backlog
+

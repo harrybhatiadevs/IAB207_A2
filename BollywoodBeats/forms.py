@@ -1,3 +1,5 @@
+"""WTForms definitions for accounts, events, bookings, and comments."""
+
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms.fields import (
@@ -138,6 +140,7 @@ class TicketTierForm(Form):
     )
 
     def has_value(self) -> bool:
+        """Used to detect whether the admin actually filled this placeholder row."""
         return bool((self.name.data or "").strip())
 
 
@@ -197,6 +200,7 @@ class EventForm(FlaskForm):
     def validate_start_dt(self, field):
         if field.data is None:
             return
+        # Prevent organisers from accidentally creating already-expired events.
         if field.data <= datetime.utcnow():
             raise ValidationError("Start date must be in the future.")
 
@@ -254,6 +258,7 @@ class EventUpdateForm(FlaskForm):
     def validate_start_dt(self, field):
         if field.data is None:
             return
+        # Keep edits from moving events back into the past, which breaks availability logic.
         if field.data <= datetime.utcnow():
             raise ValidationError("Start date must be in the future.")
 
